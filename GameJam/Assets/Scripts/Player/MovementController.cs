@@ -9,6 +9,7 @@ namespace GameJam.Player
     {
         #region Variables
         [SerializeField]
+        [Header("Speed of player movement")]
         private float _horizontalSpeed;
 
         private Rigidbody2D _playerRB;
