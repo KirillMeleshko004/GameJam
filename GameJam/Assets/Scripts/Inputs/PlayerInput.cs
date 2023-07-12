@@ -6,11 +6,13 @@ namespace GameJam.Inputs
     {
         #region Variables
         private float _horizontalInput;
+        private bool _basicInteractionInput;
 
         #endregion
 
         #region Properties
         public float HorizontalInput { get { return _horizontalInput; } }
+        public bool BasicInteractionInput { get { return _basicInteractionInput; } }
         #endregion
 
 
@@ -18,6 +20,7 @@ namespace GameJam.Inputs
         void Update()
         {
             HandleHorizontalInput();
+            HandleInteractionInput();
         }
         #endregion
 
@@ -26,6 +29,11 @@ namespace GameJam.Inputs
         private void HandleHorizontalInput()
         {
             _horizontalInput = Input.GetAxis("Horizontal");
+        }
+
+        private void HandleInteractionInput()
+        {
+            _basicInteractionInput = Input.GetKeyDown(KeyCode.E);
         }
         #endregion
     }

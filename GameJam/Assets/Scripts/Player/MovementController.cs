@@ -13,7 +13,7 @@ namespace GameJam.Player
         private float _horizontalSpeed;
 
         private Rigidbody2D _playerRB;
-        private PlayerInput _playerRInput;
+        private PlayerInput _playerInput;
         #endregion
 
         #region Properties
@@ -25,10 +25,10 @@ namespace GameJam.Player
         private void Start()
         {
             _playerRB = GetComponent<Rigidbody2D>();
-            _playerRInput = GetComponent<PlayerInput>();
+            _playerInput = GetComponent<PlayerInput>();
         }
 
-        void Update()
+        void FixedUpdate()
         {
             HandleMovement();
         }
@@ -39,7 +39,7 @@ namespace GameJam.Player
         private void HandleMovement()
         {
             Vector2 wantedPos = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y) +
-                _horizontalSpeed * _playerRInput.HorizontalInput * Vector2.right;
+                _horizontalSpeed * _playerInput.HorizontalInput * Vector2.right;
             _playerRB.MovePosition(wantedPos);
         }
         #endregion
