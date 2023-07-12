@@ -32,14 +32,16 @@ namespace GameJam.Player
         {
             HandleMovement();
         }
+
         #endregion
 
 
         #region Custom methods
         private void HandleMovement()
         {
-            Vector2 wantedPos = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y) +
-                _horizontalSpeed * _playerInput.HorizontalInput * Vector2.right;
+            Vector2 currentPos = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y);
+            Vector2 wantedPos = currentPos + (_horizontalSpeed * Time.deltaTime * _playerInput.HorizontalInput * Vector2.right);
+
             _playerRB.MovePosition(wantedPos);
         }
         #endregion

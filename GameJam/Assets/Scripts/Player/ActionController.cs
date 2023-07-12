@@ -10,7 +10,7 @@ namespace GameJam.Player
     {
         #region Variables
         private PlayerInput _playerInput;
-        private Queue<IInteractable> _interactables = new();
+        private readonly Queue<IInteractable> _interactables = new();
         #endregion
 
         #region Properties
@@ -31,9 +31,9 @@ namespace GameJam.Player
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.gameObject.CompareTag("Interactable"))
+            if (collision.transform.root.CompareTag("Interactable"))
             {
-                IInteractable interactable = collision.gameObject.GetComponent<IInteractable>();
+                IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
                 _interactables.Enqueue(interactable);
                 interactable.ShowInteractionHint();
             }
@@ -41,9 +41,9 @@ namespace GameJam.Player
 
         private void OnTriggerExit2D(Collider2D collision)
         {
-            if (collision.gameObject.CompareTag("Interactable"))
+            if (collision.transform.root.CompareTag("Interactable"))
             {
-                IInteractable interactable = collision.gameObject.GetComponent<IInteractable>();
+                IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
                 if(_interactables.Count != 0)
                     _interactables.Dequeue();
                 interactable.HideInteractionHint();
@@ -58,9 +58,9 @@ namespace GameJam.Player
             if (_interactables.Count == 0) return;
             if (_playerInput.BasicInteractionInput)
             {
-                IInteractable interactable = _interactables.Dequeue();
+                IInteractable interactable = _interactables.Peek();
                 interactable.Interact();
-                GameObject.Destroy(interactable.InteractableObject);
+                //GameObject.Destroy(interactable.InteractableObject);
             }
         }
         #endregion
