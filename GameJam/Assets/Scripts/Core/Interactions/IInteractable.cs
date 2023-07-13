@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace GameJam.Core
+namespace GameJam.Core.Interactions
 {
     //Interface indicates, that interaction with object is possible
     public interface IInteractable

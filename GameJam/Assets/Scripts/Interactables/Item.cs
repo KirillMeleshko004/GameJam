@@ -1,4 +1,5 @@
-using GameJam.Core;
+using GameJam.Core.Interactions;
+using ScriptableObjects.Readables;
 using UnityEngine;
 
 namespace GameJam.Items
@@ -7,9 +8,16 @@ namespace GameJam.Items
     public class Item : MonoBehaviour, IInteractable
     {
         #region Variables
+        [SerializeField]
+        private GameObject _readableDisplay;
+        [SerializeField]
+        private Readable _readable;
+
+        private bool _isShowing = false;
         #endregion
 
-        public GameObject InteractableObject { get; private set; }
+        #region Properties
+        #endregion
 
         #region Built-in methods
         private void Start()
@@ -18,13 +26,28 @@ namespace GameJam.Items
         }
         #endregion
 
-
-
+        #region Custom methods
+        private void ShowReadable()
+        {
+            _readableDisplay.GetComponent<ReadableDisplay>().DisplayReadable(_readable);
+        }
+        private void HideReadable()
+        {
+            _readableDisplay.GetComponent<ReadableDisplay>().HideReadable();
+        }
+        #endregion
 
         #region IInteractable realisation
+        public GameObject InteractableObject { get; private set; }
         public void Interact()
         {
             Debug.Log("Interaction");
+            if(!_isShowing)
+                ShowReadable();
+            else
+                HideReadable();
+
+            _isShowing = !_isShowing;
         }
 
         public void ShowInteractionHint()

@@ -1,4 +1,4 @@
-using GameJam.Core;
+using GameJam.Core.Interactions;
 using GameJam.Inputs;
 using System.Collections.Generic;
 using UnityEngine;

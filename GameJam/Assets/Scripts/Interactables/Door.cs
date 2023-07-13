@@ -1,6 +1,4 @@
-using GameJam.Core;
-using System.Collections;
-using System.Collections.Generic;
+using GameJam.Core.Interactions;
 using UnityEngine;
 
 namespace GameJam.Items
