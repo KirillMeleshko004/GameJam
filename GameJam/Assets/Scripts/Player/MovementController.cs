@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace GameJam.Player
 {
+    //Class to handle all movements
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(PlayerInput))]
     public class MovementController : MonoBehaviour
@@ -39,10 +40,7 @@ namespace GameJam.Player
         #region Custom methods
         private void HandleMovement()
         {
-            Vector2 currentPos = new Vector2(gameObject.transform.position.x, gameObject.transform.position.y);
-            Vector2 wantedPos = currentPos + (_horizontalSpeed * Time.deltaTime * _playerInput.HorizontalInput * Vector2.right);
-
-            _playerRB.MovePosition(wantedPos);
+            _playerRB.velocity = new Vector2(_horizontalSpeed * _playerInput.HorizontalInput, 0f);
         }
         #endregion
     }

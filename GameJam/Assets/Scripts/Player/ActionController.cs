@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace GameJam.Player
 {
+    //Class to handle all actions, except movement
     [RequireComponent(typeof(PlayerInput))]
     public class ActionController : MonoBehaviour
     {

@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace GameJam.Inputs
 {
+    //Wrapper-class to get input
     public class PlayerInput : MonoBehaviour
     {
         #region Variables

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GameJam.Items
 {
-    //class that represents interactable item
+    //class that represents interactable door
     public class Door : MonoBehaviour, IInteractable
     {
         #region Variables
@@ -29,6 +29,7 @@ namespace GameJam.Items
         {
             _isClosed = !_isClosed;
             Debug.Log("Is closed: " + _isClosed.ToString());
+            ShowInteractionHint();
         }
 
         public void ShowInteractionHint()
