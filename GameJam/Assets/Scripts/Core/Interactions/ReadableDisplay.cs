@@ -1,6 +1,5 @@
 using GameJam.Player;
 using ScriptableObjects.Readables;
-using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,7 +15,6 @@ namespace GameJam.Core.Interactions
         [SerializeField]
         private GameObject _player;
         #endregion
-
 
         #region Built-in methods
         #endregion

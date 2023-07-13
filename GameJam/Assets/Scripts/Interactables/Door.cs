@@ -4,26 +4,41 @@ using UnityEngine;
 namespace GameJam.Items
 {
     //class that represents interactable door
-    public class Door : MonoBehaviour, IInteractable
+    public class Door : BaseInteractable
     {
-        #region Variables
-        private bool _isClosed = true;
+        #region Local const
+        private const string OPEN_HINT = "Press E to open the door";
+        private const string CLOSE_HINT = "Press E to close the door";
         #endregion
 
-        public GameObject InteractableObject { get; private set; }
+        #region Variables
+        private bool _isClosed = true;
+        private GameObject _interactableObject;
+        #endregion
+
 
         #region Built-in methods
         private void Start()
         {
-            InteractableObject = this.gameObject;
+            _interactableObject = this.gameObject;
+        }
+        #endregion
+
+        #region Custom methods
+
+        protected override void UpdateHint()
+        {
+            if (_isClosed)
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(OPEN_HINT);
+            else
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(CLOSE_HINT);
         }
         #endregion
 
 
-
-
         #region IInteractable realisation
-        public void Interact()
+        public override GameObject InteractableObject { get { return _interactableObject; } }
+        public override void Interact()
         {
             _isClosed = !_isClosed;
             Debug.Log("Is closed: " + _isClosed.ToString());
@@ -34,20 +49,18 @@ namespace GameJam.Items
             ShowInteractionHint();
         }
 
-        public void ShowInteractionHint()
+        public override void ShowInteractionHint()
         {
-            if(_isClosed)
-            {
-                Debug.Log("Open door");
-            }
+            base._hintDisplay.SetActive(true);
+            if (_isClosed)
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(OPEN_HINT);
             else
-            {
-                Debug.Log("Close door");
-            }
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(CLOSE_HINT);
         }
-        public void HideInteractionHint()
+        public override void HideInteractionHint()
         {
-            Debug.Log("Hide hint");
+            base._hintDisplay.GetComponent<HintDisplay>().HideHint();
+            _hintDisplay.SetActive(false);
         }
         #endregion
     }
