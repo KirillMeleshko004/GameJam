@@ -29,6 +29,10 @@ namespace GameJam.Items
         {
             _isClosed = !_isClosed;
             Debug.Log("Is closed: " + _isClosed.ToString());
+
+            GameObject collider = transform.GetChild(0).gameObject;
+            collider.SetActive(_isClosed);
+
             ShowInteractionHint();
         }
 
