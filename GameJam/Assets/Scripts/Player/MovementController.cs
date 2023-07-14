@@ -7,12 +7,14 @@ namespace GameJam.Player
     //Class to handle all movements
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(PlayerInput))]
+    [RequireComponent(typeof(Animator))]
     public class MovementController : MonoBehaviour
     {
         #region Variables
         [SerializeField]
-        [Header("Speed of player movement")]
         private float _horizontalSpeed;
+        [SerializeField]
+        private Animator _playerAnim;
 
         private float _xScale;
         private Rigidbody2D _playerRB;
@@ -29,6 +31,7 @@ namespace GameJam.Player
         {
             _playerRB = GetComponent<Rigidbody2D>();
             _playerInput = GetComponent<PlayerInput>();
+            _playerAnim = GetComponent<Animator>();
 
             _xScale = transform.localScale.x;
         }
@@ -45,6 +48,11 @@ namespace GameJam.Player
         {
             SetDirection(_playerInput.HorizontalInput);
             _playerRB.velocity = new Vector2(_horizontalSpeed * _playerInput.HorizontalInput, 0f);
+            if(_playerRB.velocity != Vector2.zero)
+                _playerAnim.SetBool("isMoving", true);
+            else
+                _playerAnim.SetBool("isMoving", false);
+
         }
 
         private void SetDirection(float direction)
