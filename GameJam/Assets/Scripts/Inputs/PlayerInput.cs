@@ -14,6 +14,8 @@ namespace GameJam.Inputs
         #region Properties
         public float HorizontalInput { get { return _horizontalInput; } }
         public bool BasicInteractionInput { get { return _basicInteractionInput; } }
+
+        public bool IsMovementEnabled { get; set; } = true;
         #endregion
 
 
@@ -29,7 +31,10 @@ namespace GameJam.Inputs
         #region Custom methods
         private void HandleHorizontalInput()
         {
-            _horizontalInput = Input.GetAxis("Horizontal");
+            if (IsMovementEnabled)
+                _horizontalInput = Input.GetAxis("Horizontal");
+            else
+                _horizontalInput = 0f;
         }
 
         private void HandleInteractionInput()

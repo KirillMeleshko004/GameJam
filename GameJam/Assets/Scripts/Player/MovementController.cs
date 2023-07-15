@@ -1,6 +1,7 @@
 using GameJam.Inputs;
 using System;
 using UnityEngine;
+using UnityEngine.Windows;
 
 namespace GameJam.Player
 {
@@ -22,7 +23,6 @@ namespace GameJam.Player
         #endregion
 
         #region Properties
-
         #endregion
 
 
@@ -48,7 +48,7 @@ namespace GameJam.Player
         {
             SetDirection(_playerInput.HorizontalInput);
             _playerRB.velocity = new Vector2(_horizontalSpeed * _playerInput.HorizontalInput, 0f);
-            if(_playerRB.velocity != Vector2.zero)
+            if (_playerRB.velocity != Vector2.zero)
                 _playerAnim.SetBool("isMoving", true);
             else
                 _playerAnim.SetBool("isMoving", false);

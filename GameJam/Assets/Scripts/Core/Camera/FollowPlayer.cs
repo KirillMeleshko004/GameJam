@@ -18,9 +18,8 @@ namespace GameJam.Core.Camera
         #region Built-in methods
         private void LateUpdate()
         {
-            Vector3 target = new Vector3(_target.position.x, _target.position.y, transform.position.z);
+            Vector3 target = new Vector3(_target.position.x, transform.position.y, transform.position.z);
             transform.position = Vector3.Lerp(transform.position, target, maxSpeed * Time.deltaTime);
-            //transform.position = Vector3.MoveTowards(transform.position, target, maxSpeed * Time.deltaTime);
         }
         #endregion
     }

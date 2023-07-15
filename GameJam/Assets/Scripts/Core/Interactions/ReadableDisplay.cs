@@ -1,3 +1,4 @@
+using GameJam.Inputs;
 using GameJam.Player;
 using ScriptableObjects.Readables;
 using TMPro;
@@ -12,8 +13,9 @@ namespace GameJam.Core.Interactions
         #region Variables
         [SerializeField]
         private GameObject _readableDisplayPrefab;
+
         [SerializeField]
-        private GameObject _player;
+        private PlayerInput _playerInput;
         #endregion
 
         #region Built-in methods
@@ -27,12 +29,13 @@ namespace GameJam.Core.Interactions
             obj.GetComponent<Image>().sprite = readable.Background;
             obj.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = readable.Text;
 
-            _player.GetComponent<MovementController>().enabled = false;
+            _playerInput.IsMovementEnabled = false;
         }
         public void HideReadable()
         {
             GameObject.Destroy(transform.GetChild(0).gameObject);
-            _player.GetComponent<MovementController>().enabled = true;
+
+            _playerInput.IsMovementEnabled = true;
         }
         #endregion
     }

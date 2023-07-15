@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Walk
+  m_Name: WalkAnim
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -35,37 +35,37 @@ AnimationClip:
       value: {fileID: 21300000, guid: 9fd53e251c5c0b9428053b319d90526f, type: 3}
     - time: 0.23333333
       value: {fileID: 21300000, guid: 860cb83958bdc984c8574411dad5e0a1, type: 3}
-    - time: 0.26666668
+    - time: 0.28333333
       value: {fileID: 21300000, guid: 25ea9d07a8f71894ba7c34586ecbf1fd, type: 3}
-    - time: 0.3
+    - time: 0.31666666
       value: {fileID: 21300000, guid: ed3e1843b77bed343883b65ffc663901, type: 3}
-    - time: 0.33333334
+    - time: 0.35
       value: {fileID: 21300000, guid: 824e27753e5558443a82d2c320cd89da, type: 3}
-    - time: 0.36666667
+    - time: 0.38333333
       value: {fileID: 21300000, guid: 8245a1675a54cae459f52e9c2924eb5e, type: 3}
-    - time: 0.4
+    - time: 0.41666666
       value: {fileID: 21300000, guid: ee6323c9c676d8d46b042d9137150912, type: 3}
-    - time: 0.43333334
+    - time: 0.45
       value: {fileID: 21300000, guid: 5b17888b70a603a42818870ee33f7615, type: 3}
-    - time: 0.46666667
+    - time: 0.48333332
       value: {fileID: 21300000, guid: ebdc8733a0e00f442a1f7bf4a804a440, type: 3}
-    - time: 0.5
+    - time: 0.51666665
       value: {fileID: 21300000, guid: 67876965dc9f5d84d979e27c7be878da, type: 3}
-    - time: 0.55
+    - time: 0.53333336
       value: {fileID: 21300000, guid: f8d6045f831571e4fbd8f1ccd3807294, type: 3}
-    - time: 0.5833333
+    - time: 0.56666666
       value: {fileID: 21300000, guid: bba1bb939b1195f40b999e33892cf55c, type: 3}
-    - time: 0.6166667
+    - time: 0.6
       value: {fileID: 21300000, guid: 41049bfa65ac24a4cb4fa4d1a545e3df, type: 3}
-    - time: 0.65
+    - time: 0.6333333
       value: {fileID: 21300000, guid: 1c1bfb8813d8568458d33405d0e80f3f, type: 3}
-    - time: 0.68333334
+    - time: 0.6666667
       value: {fileID: 21300000, guid: a9f824f243fb8664f8e57560f864b62f, type: 3}
-    - time: 0.71666664
+    - time: 0.7
       value: {fileID: 21300000, guid: ae403ffff315d574d8234d02b6e452bd, type: 3}
-    - time: 0.75
+    - time: 0.73333335
       value: {fileID: 21300000, guid: 96643783ba92dbd4e96eac50f15b7f5a, type: 3}
-    - time: 0.78333336
+    - time: 0.76666665
       value: {fileID: 21300000, guid: 3d6579f38011bcb4fac1c0596c55b645, type: 3}
     - time: 0.81666666
       value: {fileID: 21300000, guid: 76f5b0bc01e48e740812ea0db3e91ec1, type: 3}

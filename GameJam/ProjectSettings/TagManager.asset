@@ -42,7 +42,10 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Second Layer
+  - name: Third Layer
+    uniqueID: 1939469849
+    locked: 0
+  - name: Objects Layer
     uniqueID: 1062165989
     locked: 0
   - name: Top Layer
