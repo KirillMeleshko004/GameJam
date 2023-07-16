@@ -1,6 +1,4 @@
-1 sd.st 1$
-12 sffs.st 2$
-1 sd.st 1$
-12 sffs.st 2$
-1 sd.st 1$
-12 sffs.st 2$
+| 1 | 28 Jakuba Kolasa St. | 5$ |
+| 2 | 16 Bogdanovicha St. | 7$ |
+| 3 | 31 Oktyabrskaya St. | 15$ |
+| 4 | 12 Pervomayskaya St. | 9$ |

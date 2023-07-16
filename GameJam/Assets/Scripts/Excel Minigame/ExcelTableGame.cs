@@ -56,10 +56,14 @@ namespace GameJam.ExcelMinigame
 
         private Dictionary<int, GameObject> _columnPrefabPairs = new Dictionary<int, GameObject>();
 
+        private string[] dataCells;
+
         #region Built-in methods
 
         private void Start()
         {
+            dataCells = (from str in _tableInfo.text.Split('|') where str.Trim() != "" select str.Trim()).ToArray<string>();
+
             CreateTable();
         }
         #endregion
@@ -68,7 +72,10 @@ namespace GameJam.ExcelMinigame
 
         private void CreateTable()
         {
-            string[] dataCells = (from str in _tableInfo.text.Split() where str != "" select str).ToArray<string>();
+            foreach(var el in dataCells)
+            {
+                Debug.Log(el);
+            }
 
             for (int noteInd = 0; noteInd < dataCells.Length; noteInd += _columnCount)
             {
@@ -96,7 +103,6 @@ namespace GameJam.ExcelMinigame
         {
             if (InputValue == string.Empty) return;
 
-            string[] dataCells = (from str in _tableInfo.text.Split() where str != "" select str).ToArray<string>();
             int sum = 0;
             for (int i = 2; i < dataCells.Length; i += 3)
             {
