@@ -33,17 +33,6 @@ namespace GameJam.Core.SceneChangers
             Debug.Log(_currentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
 
             SceneManager.LoadScene(_targetSceneBuildID);
-            //while (true)
-            //{
-            //    Debug.Log(_blackoutAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
-            //    if(_blackoutAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime > 1f)
-            //    {
-            //        SceneManager.LoadScene(_targetSceneBuildID);
-            //        Debug.Log(_blackoutAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
-            //        break;
-            //    }
-            //}
-
         }
 
         private IEnumerator LoadSceneWithAnimation()

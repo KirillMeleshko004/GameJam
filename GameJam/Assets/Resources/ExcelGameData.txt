@@ -1,8 +1,6 @@
-1 sd.st 123123$
-12 sffs.st 131$
-1 sd.st 123123$
-12 sffs.st 131$
-1 sd.st 123123$
-12 sffs.st 131$
-1 sd.st 123123$
-12 sffs.st 131$
+1 sd.st 1$
+12 sffs.st 2$
+1 sd.st 1$
+12 sffs.st 2$
+1 sd.st 1$
+12 sffs.st 2$

@@ -26,7 +26,7 @@ namespace GameJam.Items
 
         #region Custom methods
 
-        protected override void UpdateHint()
+        protected void UpdateHint()
         {
             if (_isClosed)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(OPEN_HINT);

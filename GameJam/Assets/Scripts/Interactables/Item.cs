@@ -1,26 +1,37 @@
 using GameJam.Core.Interactions;
+using GameJam.Inputs;
 using ScriptableObjects.Readables;
 using UnityEngine;
 
 namespace GameJam.Items
 {
     //class that represents interactable item
-    public class Item : BaseInteractable
+    public class Item : BaseInteractable, IPlayerMovementRestrictor
     {
-        #region Local const
-        private const string SHOW_HINT = "Press E to show text";
-        private const string HIDE_HINT = "Press E to hide text";
-        #endregion
 
         #region Variables
+        [Header("Readable object to show")]
         [SerializeField]
         private Readable _readable;
+        [Header("Display, where text is showing")]
         [SerializeField]
         protected GameObject _readableDisplay;
 
-        private GameObject _interactableObject;
 
+        [Header("PlayerInput component of current player")]
+        [SerializeField]
+        private PlayerInput _playerInput;
+
+
+        private GameObject _interactableObject;
         private bool _isShowing = false;
+
+
+        [Header("Messages, that show up as a hint")]
+        [SerializeField]
+        private string _showReadableHint = "Press E to show text";
+        [SerializeField]
+        private string _hideReadableHint = "Press E to hide text";
         #endregion
 
         #region Properties
@@ -44,12 +55,12 @@ namespace GameJam.Items
             _readableDisplay.GetComponent<ReadableDisplay>().HideReadable();
             _readableDisplay.SetActive(false);
         }
-        protected override void UpdateHint()
+        protected void UpdateHint()
         {
             if (!_isShowing)
-                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(SHOW_HINT);
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_showReadableHint);
             else
-                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(HIDE_HINT);
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_hideReadableHint);
         }
         #endregion
 
@@ -57,11 +68,16 @@ namespace GameJam.Items
         public override GameObject InteractableObject { get { return _interactableObject; } }
         public override void Interact()
         {
-            Debug.Log("Interaction");
             if(!_isShowing)
+            {
+                DisablePlayerMovement();
                 ShowReadable();
+            }
             else
+            {
+                EnablePlayerMovement();
                 HideReadable();
+            }
 
             _isShowing = !_isShowing;
 
@@ -72,14 +88,26 @@ namespace GameJam.Items
         {
             base._hintDisplay.SetActive(true);
             if (!_isShowing)
-                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(SHOW_HINT);
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_showReadableHint);
             else
-                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(HIDE_HINT);
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_hideReadableHint);
         }
         public override void HideInteractionHint()
         {
             base._hintDisplay.GetComponent<HintDisplay>().HideHint();
             base._hintDisplay.SetActive(false);
+        }
+
+        #endregion
+        #region IPlayerMovementRestrictor implementation
+        public void DisablePlayerMovement()
+        {
+            _playerInput.IsMovementEnabled = false;
+        }
+
+        public void EnablePlayerMovement()
+        {
+            _playerInput.IsMovementEnabled = true;
         }
         #endregion
     }

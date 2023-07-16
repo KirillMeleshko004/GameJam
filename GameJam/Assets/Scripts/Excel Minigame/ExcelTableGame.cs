@@ -3,11 +3,28 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GameJam.ExcelMinigame
 {
-    public class ExcelTable : MonoBehaviour, ISerializationCallbackReceiver
+    public class ExcelTableGame : MonoBehaviour, ISerializationCallbackReceiver
     {
+        #region Events
+        public event Action GameCompleted;
+        #endregion
+
+        #region Variables
+        [Header("Messages Values")]
+        [SerializeField]
+        private string _correctMessage;
+        [SerializeField]
+        private string _incorrectMessage;
+        [Header("Messages Box Background Colors")]
+        [SerializeField]
+        private Color _correctColor;
+        [SerializeField]
+        private Color _incorrectColor;
+
         [SerializeField]
         private float _xStart;
         [SerializeField]
@@ -19,7 +36,14 @@ namespace GameJam.ExcelMinigame
         [SerializeField]
         private int _columnCount;
 
-        public static string InputValue { get; set; }
+        [SerializeField]
+        private GameObject _resultBox;
+
+        [SerializeField]
+        private float _closingTime = 3f;
+        #endregion
+
+        public string InputValue { get; set; } = string.Empty;
 
 
         [Header("Text file with all table information")]
@@ -29,8 +53,6 @@ namespace GameJam.ExcelMinigame
         [Header("Prefabs for data cells of each column")]
         [SerializeField]
         private GameObject[] _dataCellsPrefabs;
-
-
 
         private Dictionary<int, GameObject> _columnPrefabPairs = new Dictionary<int, GameObject>();
 
@@ -43,6 +65,7 @@ namespace GameJam.ExcelMinigame
         #endregion
 
         #region Custom methods
+
         private void CreateTable()
         {
             string[] dataCells = (from str in _tableInfo.text.Split() where str != "" select str).ToArray<string>();
@@ -63,7 +86,6 @@ namespace GameJam.ExcelMinigame
         {
             float xPos = _columnPrefabPairs[columnIndex].transform.localPosition.x;
 
-            Debug.Log(xPos);
             float yPos = _yStart - (_ySpaceBetween + 
                 _columnPrefabPairs[columnIndex].GetComponent<RectTransform>().rect.height) * (elInd / (_columnCount));
 
@@ -72,6 +94,8 @@ namespace GameJam.ExcelMinigame
 
         public void OnSubmit()
         {
+            if (InputValue == string.Empty) return;
+
             string[] dataCells = (from str in _tableInfo.text.Split() where str != "" select str).ToArray<string>();
             int sum = 0;
             for (int i = 2; i < dataCells.Length; i += 3)
@@ -93,11 +117,29 @@ namespace GameJam.ExcelMinigame
 
             }
 
-            if (Convert.ToInt32(ExcelTable.InputValue) != sum)
-                Debug.Log("No");
-            else
-                Debug.Log("Yes");
+            ShowResult(Convert.ToInt32(InputValue) == sum);
+
         }
+
+        private void ShowResult(bool isCorrect)
+        {
+            _resultBox.SetActive(true);
+
+            TextMeshProUGUI textBox = _resultBox.GetComponentInChildren<TextMeshProUGUI>();
+            Image backgroundImage = _resultBox.GetComponent<Image>();
+            if(isCorrect)
+            {
+                textBox.text = _correctMessage;
+                backgroundImage.color = _correctColor;
+                GameCompleted?.Invoke();
+            }
+            else
+            {
+                textBox.text = _incorrectMessage;
+                backgroundImage.color = _incorrectColor;
+            }
+        }
+
         #endregion
 
         #region ISerializationCallbackReceiver implementation

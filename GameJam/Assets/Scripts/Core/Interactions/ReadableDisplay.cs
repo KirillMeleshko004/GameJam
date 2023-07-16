@@ -13,9 +13,6 @@ namespace GameJam.Core.Interactions
         #region Variables
         [SerializeField]
         private GameObject _readableDisplayPrefab;
-
-        [SerializeField]
-        private PlayerInput _playerInput;
         #endregion
 
         #region Built-in methods
@@ -28,14 +25,10 @@ namespace GameJam.Core.Interactions
             obj.GetComponent<RectTransform>().localPosition = Vector3.zero;
             obj.GetComponent<Image>().sprite = readable.Background;
             obj.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = readable.Text;
-
-            _playerInput.IsMovementEnabled = false;
         }
         public void HideReadable()
         {
             GameObject.Destroy(transform.GetChild(0).gameObject);
-
-            _playerInput.IsMovementEnabled = true;
         }
         #endregion
     }

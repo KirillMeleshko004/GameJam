@@ -6,9 +6,9 @@ namespace GameJam.Core.Interactions
     public abstract class BaseInteractable : MonoBehaviour, IInteractable
     {
 
+        [Header("Display, where interaction hint is showing")]
         [SerializeField]
         protected GameObject _hintDisplay;
-        protected abstract void UpdateHint();
 
         public abstract GameObject InteractableObject { get; }
 

@@ -1,25 +1,37 @@
 using GameJam.Core.Interactions;
+using GameJam.ExcelMinigame;
+using GameJam.Inputs;
 using ScriptableObjects.Readables;
 using UnityEngine;
 
 namespace GameJam.Items
 {
-    public class PC : BaseInteractable
+    public class PC : BaseInteractable, IPlayerMovementRestrictor
     {
-        #region Local const
-        private const string SHOW_HINT = "Press E to show text";
-        private const string HIDE_HINT = "Press E to hide text";
-        #endregion
-
         #region Variables
+        [Header("Prefab of excel game")]
         [SerializeField]
-        private Readable _readable;
+        private GameObject _excelGamePrefab;
+        [Header("Display, where pc interface is running")]
         [SerializeField]
         protected GameObject _pcDisplay;
+        [Header("PlayerInput component of current player")]
+        [SerializeField]
+        private PlayerInput _playerInput;
+
+        [Header("Messages, that show up as a hint")]
+        [SerializeField]
+        private string _startWorkHint = "Press E to start work";
+        [SerializeField]
+        private string _finishWorkHint = "Press E to finish work";
+
 
         private GameObject _interactableObject;
 
-        private bool _isShowing = false;
+        private bool _isWorking = false;
+        private bool _workCompleted = false;
+        private GameObject _excelGameInstance;
+
         #endregion
 
         #region Properties
@@ -33,12 +45,27 @@ namespace GameJam.Items
         #endregion
 
         #region Custom methods
-        private void ShowReadable()
+        private void StartExcelGame()
         {
+            HideInteractionHint();
+            _excelGameInstance = Instantiate(_excelGamePrefab, Vector3.zero, Quaternion.identity, _pcDisplay.transform);
+            _excelGameInstance.transform.localPosition = Vector3.zero;
+            _excelGameInstance.GetComponentInChildren<ExcelTableGame>().GameCompleted += OnGameCompleted;
         }
-        private void HideReadable()
+        private void CloseExcelGame()
         {
+            gameObject.GetComponent<BoxCollider2D>().enabled = false;
+            HideInteractionHint();
+            GameObject.Destroy(_excelGameInstance);
         }
+
+        private void OnGameCompleted()
+        {
+            Debug.Log("Completed");
+            _workCompleted = true;
+            ShowInteractionHint();
+        }
+
         #endregion
 
         #region BaseInteractable implementation
@@ -46,23 +73,49 @@ namespace GameJam.Items
 
         public override void HideInteractionHint()
         {
-            throw new System.NotImplementedException();
+            base._hintDisplay.GetComponent<HintDisplay>().HideHint();
+            base._hintDisplay.SetActive(false);
         }
 
         public override void Interact()
         {
-            throw new System.NotImplementedException();
+            if(!_isWorking && !_workCompleted)
+            {
+                DisablePlayerMovement();
+                _isWorking = true;
+                StartExcelGame();
+            }
+            else if(_isWorking && _workCompleted)
+            {
+                EnablePlayerMovement();
+                CloseExcelGame();
+            }
         }
 
         public override void ShowInteractionHint()
         {
-            throw new System.NotImplementedException();
+            base._hintDisplay.SetActive(true);
+            if (!_workCompleted)
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_startWorkHint);
+            else
+            {
+                Debug.Log("Here");
+                Debug.Log(_finishWorkHint);
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_finishWorkHint);
+            }
         }
 
-        protected override void UpdateHint()
+        #region IPlayerMovementRestrictor implementation
+        public void DisablePlayerMovement()
         {
-            throw new System.NotImplementedException();
+            _playerInput.IsMovementEnabled = false;
         }
+
+        public void EnablePlayerMovement()
+        {
+            _playerInput.IsMovementEnabled = true;
+        }
+        #endregion
         #endregion
     }
 }
