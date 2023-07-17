@@ -1,5 +1,6 @@
 using GameJam.Core.Interactions;
 using GameJam.Inputs;
+using GameJam.Player;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -27,6 +28,8 @@ namespace GameJam.Items
         private string _sitDownHint = "Prees E to sit down";
         [SerializeField]
         private string _standUpHint = "Prees E to stand up";
+        [SerializeField]
+        private string _shootHint = "Prees E to shoot";
 
         [Header("Length of animation clips")]
         [SerializeField]
@@ -34,6 +37,10 @@ namespace GameJam.Items
 
         [SerializeField]
         private bool _isOnCooldown = false;
+
+        [Header("Is last scene")]
+        [SerializeField]
+        private bool _isDayX = false;
         #endregion
 
         #region Properties
@@ -42,6 +49,7 @@ namespace GameJam.Items
         #region Custom methods
         private IEnumerator StandUp()
         {
+            StartCoroutine(DisableColliderForTime(_sitDownAnimTime));
             _playerAnim.SetBool(_animatorTriggerBoolName, false);
             yield return new WaitForSeconds(_sitDownAnimTime);
             EnablePlayerMovement();
@@ -52,6 +60,15 @@ namespace GameJam.Items
             DisablePlayerMovement();
             _playerAnim.SetBool(_animatorTriggerBoolName, true);
             yield return new WaitForSeconds(_sitDownAnimTime);
+        }
+
+        private void Shoot()
+        {
+            DisablePlayerMovement();
+            transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(false);
+            Suicide player = _playerAnim.gameObject.GetComponent<Suicide>();
+            player.ShootDown();
+
         }
         protected void UpdateHint()
         {
@@ -74,15 +91,13 @@ namespace GameJam.Items
         public override void Interact()
         {
             if (!_isSitting)
-            {
                 StartCoroutine(SitDown());
-            }
-            else
+            else if (!_isDayX)
                 StartCoroutine(StandUp());
+            else
+                Shoot();
 
             _isSitting = !_isSitting;
-
-            UpdateHint();
         }
 
         public override void ShowInteractionHint()
@@ -90,8 +105,10 @@ namespace GameJam.Items
             base._hintDisplay.SetActive(true);
             if (!_isSitting)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_sitDownHint);
-            else
+            else if (!_isDayX)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_standUpHint);
+            else
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_shootHint);
         }
         public override void HideInteractionHint()
         {
