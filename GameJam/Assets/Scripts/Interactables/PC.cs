@@ -25,9 +25,6 @@ namespace GameJam.Items
         [SerializeField]
         private string _finishWorkHint = "Press E to finish work";
 
-
-        private GameObject _interactableObject;
-
         private bool _isWorking = false;
         private bool _workCompleted = false;
         private GameObject _excelGameInstance;
@@ -35,13 +32,6 @@ namespace GameJam.Items
         #endregion
 
         #region Properties
-        #endregion
-
-        #region Built-in methods
-        private void Start()
-        {
-            _interactableObject = this.gameObject;
-        }
         #endregion
 
         #region Custom methods
@@ -69,7 +59,7 @@ namespace GameJam.Items
         #endregion
 
         #region BaseInteractable implementation
-        public override GameObject InteractableObject {  get { return _interactableObject; } }
+        public override GameObject InteractableObject {  get { return this.gameObject; } }
 
         public override void HideInteractionHint()
         {

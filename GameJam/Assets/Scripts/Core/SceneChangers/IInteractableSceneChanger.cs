@@ -1,8 +1,9 @@
+using GameJam.Core.Interactions;
+
 namespace GameJam.Core.SceneChangers
 {
-    public interface IInteractableSceneChanger : ISceneChanger
+    public interface IInteractableSceneChanger : ISceneChanger, IInteractable
     {
-        public void ChangeScene();
     }
 }
 

@@ -27,13 +27,6 @@ namespace GameJam.Core.SceneChangers
         #endregion
 
         #region Custom methods
-        private void ChangeScene()
-        {
-            _currentAnimator.SetTrigger("FadeIn");
-            Debug.Log(_currentAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime);
-
-            SceneManager.LoadScene(_targetSceneBuildID);
-        }
 
         private IEnumerator LoadSceneWithAnimation()
         {

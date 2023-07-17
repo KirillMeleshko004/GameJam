@@ -22,8 +22,6 @@ namespace GameJam.Items
         [SerializeField]
         private PlayerInput _playerInput;
 
-
-        private GameObject _interactableObject;
         private bool _isShowing = false;
 
 
@@ -34,15 +32,6 @@ namespace GameJam.Items
         private string _hideReadableHint = "Press E to hide text";
         #endregion
 
-        #region Properties
-        #endregion
-
-        #region Built-in methods
-        private void Start()
-        {
-            _interactableObject = this.gameObject;
-        }
-        #endregion
 
         #region Custom methods
         private void ShowReadable()
@@ -65,7 +54,7 @@ namespace GameJam.Items
         #endregion
 
         #region IInteractable realisation
-        public override GameObject InteractableObject { get { return _interactableObject; } }
+        public override GameObject InteractableObject { get { return this.gameObject; } }
         public override void Interact()
         {
             if(!_isShowing)

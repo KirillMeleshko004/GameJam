@@ -21,8 +21,6 @@ namespace GameJam.Items
         [SerializeField]
         private string _animatorTriggerBoolName = "isSittingOnSofa";
 
-
-        private GameObject _interactableObject;
         private bool _isSitting = false;
 
 
@@ -34,13 +32,6 @@ namespace GameJam.Items
         #endregion
 
         #region Properties
-        #endregion
-
-        #region Built-in methods
-        private void Start()
-        {
-            _interactableObject = this.gameObject;
-        }
         #endregion
 
         #region Custom methods
@@ -65,7 +56,7 @@ namespace GameJam.Items
         #endregion
 
         #region IInteractable realisation
-        public override GameObject InteractableObject { get { return _interactableObject; } }
+        public override GameObject InteractableObject { get { return this.gameObject; } }
         public override void Interact()
         {
             if (!_isSitting)
