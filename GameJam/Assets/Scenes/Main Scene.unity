@@ -571,6 +571,7 @@ MonoBehaviour:
   _animatorTriggerBoolName: isSittingOnChair
   _sitDownHint: Prees E to sit down
   _standUpHint: Prees E to stand up
+  _sitDownAnimTime: 1.2
 --- !u!4 &505987485
 Transform:
   m_ObjectHideFlags: 0
@@ -579,7 +580,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 505987483}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -25.35, y: -0.93, z: 0}
+  m_LocalPosition: {x: 7, y: -0.93, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1123,6 +1124,7 @@ MonoBehaviour:
   _animatorTriggerBoolName: isSittingOnSofa
   _sitDownHint: Prees E to sit down
   _standUpHint: Prees E to stand up
+  _sitDownAnimTime: 1.134
 --- !u!4 &1473694058
 Transform:
   m_ObjectHideFlags: 0
@@ -1131,7 +1133,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1473694056}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -19.56, y: -0.93, z: 0}
+  m_LocalPosition: {x: -5, y: -0.93, z: 0}
   m_LocalScale: {x: 5, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

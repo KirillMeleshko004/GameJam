@@ -1,9 +1,7 @@
 using GameJam.Core.Interactions;
 using GameJam.Inputs;
-using ScriptableObjects.Readables;
+using System;
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace GameJam.Items
@@ -29,22 +27,31 @@ namespace GameJam.Items
         private string _sitDownHint = "Prees E to sit down";
         [SerializeField]
         private string _standUpHint = "Prees E to stand up";
+
+        [Header("Length of animation clips")]
+        [SerializeField]
+        private float _sitDownAnimTime = 0.66f;
+
+        [SerializeField]
+        private bool _isOnCooldown = false;
         #endregion
 
         #region Properties
         #endregion
 
         #region Custom methods
-
-        private void SitDown()
-        {
-            _playerAnim.SetBool(_animatorTriggerBoolName, true);
-            UpdateHint();
-        }
-        private void StandUp()
+        private IEnumerator StandUp()
         {
             _playerAnim.SetBool(_animatorTriggerBoolName, false);
-            UpdateHint();
+            yield return new WaitForSeconds(_sitDownAnimTime);
+            EnablePlayerMovement();
+        }
+        private IEnumerator SitDown()
+        {
+            StartCoroutine(DisableColliderForTime(_sitDownAnimTime));
+            DisablePlayerMovement();
+            _playerAnim.SetBool(_animatorTriggerBoolName, true);
+            yield return new WaitForSeconds(_sitDownAnimTime);
         }
         protected void UpdateHint()
         {
@@ -52,6 +59,13 @@ namespace GameJam.Items
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_sitDownHint);
             else
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_standUpHint);
+        }
+
+        private IEnumerator DisableColliderForTime(float time)
+        {
+            transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(false);
+            yield return new WaitForSeconds(time);
+            transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(true);
         }
         #endregion
 
@@ -61,14 +75,10 @@ namespace GameJam.Items
         {
             if (!_isSitting)
             {
-                DisablePlayerMovement();
-                SitDown();
+                StartCoroutine(SitDown());
             }
             else
-            {
-                EnablePlayerMovement();
-                StandUp();
-            }
+                StartCoroutine(StandUp());
 
             _isSitting = !_isSitting;
 
