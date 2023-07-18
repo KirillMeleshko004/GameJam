@@ -34,9 +34,6 @@ namespace GameJam.Items
         [SerializeField]
         private float _sitDownAnimTime = 0.66f;
 
-        [SerializeField]
-        private bool _isOnCooldown = false;
-
         [Header("Is last scene")]
         [SerializeField]
         private bool _isDayX = false;

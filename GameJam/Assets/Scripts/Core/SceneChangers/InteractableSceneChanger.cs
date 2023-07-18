@@ -12,8 +12,6 @@ namespace GameJam.Core.SceneChangers
         private Animator _balckoutAnimator;
 
         [SerializeField]
-        private float _fadeInAnimTime = 3f;
-        [SerializeField]
         private float _fadeOutAnimTime = 3f;
 
         [Header("Display, where interaction hint is showing")]

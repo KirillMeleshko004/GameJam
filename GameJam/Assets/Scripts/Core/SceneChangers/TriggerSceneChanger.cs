@@ -12,8 +12,6 @@ namespace GameJam.Core.SceneChangers
         private Animator _currentAnimator;
 
         [SerializeField]
-        private float _fadeInAnimTime = 1f;
-        [SerializeField]
         private float _fadeOutAnimTime = 3f;
         #endregion
 

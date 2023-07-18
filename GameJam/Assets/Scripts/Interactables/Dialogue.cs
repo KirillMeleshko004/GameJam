@@ -28,6 +28,8 @@ namespace GameJam.Items
         [SerializeField]
         private float _sentenceTime;
 
+        [SerializeField]
+        private Vector3 _offset = Vector3.zero;
 
         [Header("Messages, that show up as a hint")]
         [SerializeField]
@@ -59,6 +61,7 @@ namespace GameJam.Items
             DisablePlayerMovement();
             _isDisplaying = true;
             GameObject obj = Instantiate(_dialogueDisplayPrefab, Vector3.zero, Quaternion.identity, transform);
+            obj.transform.localPosition = _offset;
             _textBox = obj.transform.GetChild(0).GetComponentInChildren<TextMeshPro>();
 
             ShowNextSentence();

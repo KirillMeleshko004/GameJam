@@ -78,6 +78,11 @@ MonoBehaviour:
   _playerInput: {fileID: 0}
   _startWorkHint: Press E to start work
   _finishWorkHint: Press E to finish work
+  _playerAnim: {fileID: 0}
+  _animatorIsSittingBoolName: isSittingOnChair
+  _sitDownAnimTime: 2
+  _startUpAnimTime: 1
+  _animatorClosePcTriggerName: closePc
 --- !u!1 &4422645935598833220
 GameObject:
   m_ObjectHideFlags: 0
