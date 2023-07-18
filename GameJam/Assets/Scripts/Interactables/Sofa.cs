@@ -1,4 +1,5 @@
 using GameJam.Core.Interactions;
+using GameJam.Core.Movement;
 using GameJam.Inputs;
 using GameJam.Player;
 using System.Collections;
@@ -15,7 +16,7 @@ namespace GameJam.Items
 
         [SerializeField]
         private Animator _playerAnim;
-        [Header("Bool trigger name to play different sittin animation")]
+        [Header("Bool trigger name to play different sitting animation")]
         [SerializeField]
         private string _animatorTriggerBoolName = "isSittingOnSofa";
 
@@ -37,6 +38,9 @@ namespace GameJam.Items
         [Header("Is last scene")]
         [SerializeField]
         private bool _isDayX = false;
+
+        [SerializeField]
+        private Mover _mover;
         #endregion
 
         #region Properties
@@ -52,8 +56,17 @@ namespace GameJam.Items
         }
         private IEnumerator SitDown()
         {
-            StartCoroutine(DisableColliderForTime(_sitDownAnimTime));
             DisablePlayerMovement();
+
+            _mover.AddMovement(_playerInput.gameObject, new Vector3(transform.position.x,
+                _playerInput.transform.position.y, _playerInput.transform.position.z));
+            while(!_mover.IsAtTarget(_playerInput.gameObject))
+            {
+                yield return new WaitForFixedUpdate();
+            }
+
+            StartCoroutine(DisableColliderForTime(_sitDownAnimTime));
+
             _playerAnim.SetBool(_animatorTriggerBoolName, true);
             yield return new WaitForSeconds(_sitDownAnimTime);
         }
