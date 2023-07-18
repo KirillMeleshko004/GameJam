@@ -72,11 +72,6 @@ namespace GameJam.ExcelMinigame
 
         private void CreateTable()
         {
-            foreach(var el in dataCells)
-            {
-                Debug.Log(el);
-            }
-
             for (int noteInd = 0; noteInd < dataCells.Length; noteInd += _columnCount)
             {
                 for (int i = 0; i < _columnCount; i++)

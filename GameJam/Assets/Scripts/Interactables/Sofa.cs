@@ -1,7 +1,6 @@
 using GameJam.Core.Interactions;
 using GameJam.Inputs;
 using GameJam.Player;
-using System;
 using System.Collections;
 using UnityEngine;
 

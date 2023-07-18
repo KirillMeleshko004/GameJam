@@ -48,6 +48,9 @@ TagManager:
   - name: Objects Layer
     uniqueID: 1062165989
     locked: 0
+  - name: Player Layer
+    uniqueID: 4191401397
+    locked: 0
   - name: Top Layer
     uniqueID: 3558982335
     locked: 0

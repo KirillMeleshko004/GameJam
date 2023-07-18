@@ -1,6 +1,5 @@
 using UnityEngine.SceneManagement;
 using UnityEngine;
-using System.Threading;
 using System.Collections;
 
 namespace GameJam.Core.SceneChangers

@@ -1,7 +1,6 @@
 using GameJam.Core.Interactions;
 using GameJam.ExcelMinigame;
 using GameJam.Inputs;
-using ScriptableObjects.Readables;
 using UnityEngine;
 
 namespace GameJam.Items
@@ -89,8 +88,6 @@ namespace GameJam.Items
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_startWorkHint);
             else
             {
-                Debug.Log("Here");
-                Debug.Log(_finishWorkHint);
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_finishWorkHint);
             }
         }
