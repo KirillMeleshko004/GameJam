@@ -1,5 +1,6 @@
 using GameJam.Core.Interactions;
 using GameJam.Inputs;
+using GameJam.ScriptableObjects.Dialogue;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -10,10 +11,6 @@ namespace GameJam.Items
     public class Dialogue : MonoBehaviour, IInteractable, IPlayerMovementRestrictor
     {
         #region Variables
-        [Header("Display, where text is showing")]
-        [SerializeField]
-        private GameObject _dialogueDisplayPrefab;
-
         [SerializeField]
         private TextAsset _dialogueText;
 
@@ -25,11 +22,7 @@ namespace GameJam.Items
         [SerializeField]
         private PlayerInput _playerInput;
 
-        [SerializeField]
-        private float _sentenceTime;
 
-        [SerializeField]
-        private Vector3 _offset = Vector3.zero;
 
         [Header("Messages, that show up as a hint")]
         [SerializeField]
@@ -37,105 +30,37 @@ namespace GameJam.Items
         [SerializeField]
         private string _continueDialogueHint = "Press E to continue";
 
+        [SerializeField]
+        private DialogueScript dialogue;
 
-        private string[] _sentences;
-        private TextMeshPro _textBox;
-
-        private bool _isTypingNow = false;
-        private bool _isDisplaying = false;
-        private bool _isCompleted = false;
-        private int _currentSentenceInd = 0;
-        #endregion
-
-        #region Built-in methods
-        private void Awake()
-        {
-            _sentences = _dialogueText.text.Split('\n');
-        }
         #endregion
 
 
         #region Custom methods
-        private void ShowDialogue()
-        {
-            DisablePlayerMovement();
-            _isDisplaying = true;
-            GameObject obj = Instantiate(_dialogueDisplayPrefab, Vector3.zero, Quaternion.identity, transform);
-            obj.transform.localPosition = _offset;
-            _textBox = obj.transform.GetChild(0).GetComponentInChildren<TextMeshPro>();
-
-            ShowNextSentence();
-        }
-        private void FinishDialogue()
-        {
-            GameObject.Destroy(_textBox.transform.parent.parent.gameObject);
-            ResetParameters();
-            EnablePlayerMovement();
-        }
-        private void ResetParameters()
-        {
-            _isTypingNow = false;
-            _isDisplaying = false;
-            _isCompleted = false;
-            _currentSentenceInd = 0;
-        }
-        private IEnumerator WriteSentence(string sentence)
-        {
-            float charTime =  _sentenceTime / (float)sentence.Length;
-            _isTypingNow = true;
-            for(int i = 0; i < sentence.Length; i++)
-            {
-                _textBox.text = string.Concat(_textBox.text, sentence[i]);
-
-                Debug.Log("Here");
-                yield return new WaitForSeconds(charTime);
-            }
-            _isTypingNow = false;
-            _currentSentenceInd++;
-            _isCompleted = CheckCompletion();
-        }
-        private void ShowNextSentence()
-        {
-            ClearText();
-            if (_currentSentenceInd == _sentences.Length)
-            {
-                _isCompleted = true;
-                return;
-            }
-
-            StartCoroutine(WriteSentence(_sentences[_currentSentenceInd]));
-        }
-        private void SkipTextAnimation()
-        {
-            StopAllCoroutines();
-            _textBox.text = _sentences[_currentSentenceInd];
-            _isTypingNow = false;
-            _currentSentenceInd++;
-            _isCompleted = CheckCompletion();
-        }
-
-        private void ClearText()
-        {
-            _textBox.text = string.Empty;
-        }
-        private bool CheckCompletion()
-        {
-            return _currentSentenceInd == _sentences.Length;
-        }
+       
         #endregion
 
         #region IInteractable realisation
         public GameObject InteractableObject { get { return this.gameObject; } }
         public void Interact()
         {
-            if (!_isDisplaying)
-                ShowDialogue();
-            else if (_isTypingNow)
-                SkipTextAnimation();
-            else if (!_isCompleted)
-                ShowNextSentence();
-            else
-                FinishDialogue();
+            if(dialogue != null)
+            {
+                if (!dialogue.IsDisplaying)
+                {
+                    DisablePlayerMovement();
+                    dialogue.StartDialogue(_dialogueText);
+                }
+                else if (dialogue.IsTypingNow)
+                    dialogue.SkipTextAnimation();
+                else if (!dialogue.IsCompleted)
+                    dialogue.ShowNextSentence();
+                else
+                {
+                    dialogue.FinishDialogue();
+                    EnablePlayerMovement();
+                }
+            }
 
             ShowInteractionHint();
         }
@@ -144,8 +69,12 @@ namespace GameJam.Items
         {
             if (!_hintDisplay.activeSelf)
                 _hintDisplay.SetActive(true);
-            if (!_isDisplaying) _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_startDialogueHint);
-            else if (!_isCompleted) _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_continueDialogueHint);
+            if(dialogue!= null)
+            {
+                if (!dialogue.IsDisplaying) _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_startDialogueHint);
+                else if (!dialogue.IsCompleted) _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_continueDialogueHint);
+
+            }
 
         }
         public void HideInteractionHint()
