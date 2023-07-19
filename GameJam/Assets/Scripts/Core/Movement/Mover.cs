@@ -6,9 +6,9 @@ namespace GameJam.Core.Movement
     public class Mover : MonoBehaviour
     {
         #region Variables
-        private readonly List<MovableInfo> _objectsToMove = new();
+        private static readonly List<MovableInfo> _objectsToMove = new();
 
-        private readonly Dictionary<GameObject, MovableInfo> _history = new();
+        private static readonly Dictionary<GameObject, MovableInfo> _history = new();
 
         [Header("Accuracy of movement")]
         [SerializeField]
@@ -53,12 +53,12 @@ namespace GameJam.Core.Movement
         {
             if (Mathf.Abs(movable.MovableTransform.position.x - movable.Target.x) < _epsilon &&
                 Mathf.Abs(movable.MovableTransform.position.y - movable.Target.y) < _epsilon)
-                movable.IsAtTarget = true;
+                movable.TargetReached = true;
             movable.MovableRb.velocity = Vector3.zero;
         }
         private void HandleMovement(MovableInfo movableInfo)
         {
-            if (movableInfo.IsAtTarget)
+            if (movableInfo.TargetReached)
             {
                 movableInfo.MovableRb.velocity = Vector3.zero;
                 movableInfo.MovableAnimator.SetBool(movableInfo.AnimatorIsMovingBoolName, false);
@@ -69,7 +69,7 @@ namespace GameJam.Core.Movement
             movableInfo.MovableAnimator.SetBool(movableInfo.AnimatorIsMovingBoolName, true);
             Move(movableInfo.MovableRb, movableInfo.Target, movableInfo.MaxSpeed);
         }
-        public void AddMovement(GameObject objectToMove, Vector3 target)
+        public static void AddMovement(GameObject objectToMove, Vector3 target)
         {
             MovableInfo movableInfo;
             if (_history.ContainsKey(objectToMove))
@@ -82,18 +82,18 @@ namespace GameJam.Core.Movement
 
             movableInfo.Target = target;
             movableInfo.PrevPosition = movableInfo.MovableTransform.position;
-            movableInfo.IsAtTarget = false;
+            movableInfo.TargetReached = false;
 
             _objectsToMove.Add(movableInfo);
         }
 
-        public bool IsAtTarget(GameObject obj)
+        public static bool IsAtTarget(GameObject obj)
         {
-            bool isAtTarget = _history[obj].IsAtTarget;
+            bool isAtTarget = _history[obj].TargetReached;
             if (!isAtTarget) return false;
             else
             {
-                _history[obj].IsAtTarget = false;
+                _history[obj].TargetReached = false;
                 return true;
             }
         }
@@ -113,7 +113,7 @@ namespace GameJam.Core.Movement
             #endregion
 
             public Vector3 Target { get; set; }
-            public bool IsAtTarget { get; set; } = false;
+            public bool TargetReached { get; set; } = false;
             //Info for return
             public Vector3 PrevPosition { get; set; }
 

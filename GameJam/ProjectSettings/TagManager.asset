@@ -48,6 +48,9 @@ TagManager:
   - name: Objects Layer
     uniqueID: 1062165989
     locked: 0
+  - name: NPC Layer
+    uniqueID: 1713160529
+    locked: 0
   - name: Player Layer
     uniqueID: 4191401397
     locked: 0

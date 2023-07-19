@@ -38,9 +38,6 @@ namespace GameJam.Items
         [Header("Is last scene")]
         [SerializeField]
         private bool _isDayX = false;
-
-        [SerializeField]
-        private Mover _mover;
         #endregion
 
         #region Properties
@@ -58,9 +55,9 @@ namespace GameJam.Items
         {
             DisablePlayerMovement();
 
-            _mover.AddMovement(_playerInput.gameObject, new Vector3(transform.position.x,
+            Mover.AddMovement(_playerInput.gameObject, new Vector3(transform.position.x,
                 _playerInput.transform.position.y, _playerInput.transform.position.z));
-            while(!_mover.IsAtTarget(_playerInput.gameObject))
+            while(!Mover.IsAtTarget(_playerInput.gameObject))
             {
                 yield return new WaitForFixedUpdate();
             }

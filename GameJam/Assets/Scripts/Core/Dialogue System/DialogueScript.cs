@@ -19,25 +19,17 @@ namespace GameJam.Items
         [SerializeField]
         private float _nextCharDelay = 0.01f;
 
-
         [Header("Display, where text is showing")]
         [SerializeField]
         private GameObject _dialogueWindowPrefab;
-
-
-
-
 
         [Header("PlayerInput component of current player")]
         [SerializeField]
         private PlayerInput _playerInput;
 
-
-
         private readonly Dictionary<string, TextMeshPro> _tmrpoForPerson = new Dictionary<string, TextMeshPro>();
         private int _currentLineInd = 0;
         private TextMeshPro _currentActiveText = null;
-
 
         private List<DialogueLine> DialogueLines { get; } = new();
         #endregion
@@ -46,6 +38,10 @@ namespace GameJam.Items
         public bool IsCompleted { get; private set; } = false;
         public bool IsDisplaying { get; private set; } = false;
         public bool IsTypingNow { get; private set; } = false;
+
+        public bool IsSuspended { get; private set; } = false;
+
+        public string CurrentLine { get; private set; }
         #endregion
 
         #region Built-in methods
@@ -75,7 +71,6 @@ namespace GameJam.Items
         {
             IsTypingNow = false;
             IsDisplaying = false;
-            IsCompleted = false;
             _currentLineInd = 0;
             _currentActiveText = null;
             _tmrpoForPerson.Clear();
@@ -99,6 +94,7 @@ namespace GameJam.Items
 
         public void ShowNextSentence()
         {
+            if(IsSuspended) return;
             if (_currentLineInd == DialogueLines.Count)
             {
                 IsCompleted = true;
@@ -124,6 +120,7 @@ namespace GameJam.Items
 
         private IEnumerator WriteLine(string line, TextMeshPro tmpro)
         {
+            CurrentLine = line;
             IsTypingNow = true;
 
             for (int i = 0; i < line.Length; i++)
@@ -138,6 +135,20 @@ namespace GameJam.Items
             IsCompleted = CheckCompletion();
         }
 
+        public void SuspendDialogue()
+        {
+            IsSuspended = true;
+        }
+        public void SuspendDialogue(float time)
+        {
+            StartCoroutine(SuspenOnTime(time));
+        }
+        private IEnumerator SuspenOnTime(float time)
+        {
+            IsSuspended = true;
+            yield return new WaitForSeconds(time);
+            IsSuspended = false;
+        }
         public void SkipTextAnimation()
         {
             StopAllCoroutines();
