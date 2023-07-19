@@ -14,9 +14,9 @@ namespace GameJam.Core.Interactions
 
         public abstract void HideInteractionHint();
 
-        public abstract void Interact();
+        public abstract void Interact(GameObject sender);
 
-        public abstract void ShowInteractionHint();
+        public abstract void ShowInteractionHint(GameObject sender);
 
     }
 }

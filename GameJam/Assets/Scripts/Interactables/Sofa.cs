@@ -2,7 +2,9 @@ using GameJam.Core.Interactions;
 using GameJam.Core.Movement;
 using GameJam.Inputs;
 using GameJam.Player;
+using GameJam.ScriptableObjects.Animation;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace GameJam.Items
@@ -10,19 +12,6 @@ namespace GameJam.Items
     public class Sofa : BaseInteractable, IPlayerMovementRestrictor
     {
         #region Variables
-        [Header("PlayerInput component of current player")]
-        [SerializeField]
-        private PlayerInput _playerInput;
-
-        [SerializeField]
-        private Animator _playerAnim;
-        [Header("Bool trigger name to play different sitting animation")]
-        [SerializeField]
-        private string _animatorTriggerBoolName = "isSittingOnSofa";
-
-        private bool _isSitting = false;
-
-
         [Header("Messages, that show up as a hint")]
         [SerializeField]
         private string _sitDownHint = "Prees E to sit down";
@@ -30,10 +19,6 @@ namespace GameJam.Items
         private string _standUpHint = "Prees E to stand up";
         [SerializeField]
         private string _shootHint = "Prees E to shoot";
-
-        [Header("Length of animation clips")]
-        [SerializeField]
-        private float _sitDownAnimTime = 0.66f;
 
         [Header("Is last scene")]
         [SerializeField]
@@ -43,45 +28,74 @@ namespace GameJam.Items
         #region Properties
         #endregion
 
-        #region Custom methods
-        private IEnumerator StandUp()
+        #region Interactions info
+        private readonly Dictionary<GameObject, InteractionObjectInfo> _objectsToInteract = new();
+        private sealed class InteractionObjectInfo
         {
-            StartCoroutine(DisableColliderForTime(_sitDownAnimTime));
-            _playerAnim.SetBool(_animatorTriggerBoolName, false);
-            yield return new WaitForSeconds(_sitDownAnimTime);
-            EnablePlayerMovement();
-        }
-        private IEnumerator SitDown()
-        {
-            DisablePlayerMovement();
+            public PersonObject objectInfo;
+            public bool isSitting = false;
 
-            Mover.AddMovement(_playerInput.gameObject, new Vector3(transform.position.x,
-                _playerInput.transform.position.y, _playerInput.transform.position.z));
-            while(!Mover.IsAtTarget(_playerInput.gameObject))
+            public InteractionObjectInfo(PersonObject objectInfo, bool isSitting = false)
+            {
+                this.objectInfo = objectInfo;
+                this.isSitting = isSitting;
+            }
+        }
+        #endregion
+
+        #region Custom methods
+        private void SetAnimTrigger(Animator animator, AnimInfo animInfo)
+        {
+            if (animInfo.TriggerType == TriggerTypes.Bool)
+                animator.SetBool(animInfo.TriggerValueName, animInfo.TriggerValue);
+            else
+                animator.SetTrigger(animInfo.TriggerValueName);
+        }
+        private IEnumerator StandUp(InteractionObjectInfo interactionObject)
+        {
+            AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.StandUpFromSofa);
+            StartCoroutine(DisableColliderForTime(animInfo.AnimationLength));
+            
+            SetAnimTrigger(interactionObject.objectInfo.PersonAnim, animInfo);
+
+            yield return new WaitForSeconds(animInfo.AnimationLength);
+
+            if(interactionObject.objectInfo.PlayerInput != null)
+                EnablePlayerMovement(interactionObject.objectInfo.PlayerInput);
+        }
+        private IEnumerator SitDown(InteractionObjectInfo interactionObject)
+        {
+            if (interactionObject.objectInfo.PlayerInput != null)
+                DisablePlayerMovement(interactionObject.objectInfo.PlayerInput);
+
+            AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.SitDownToSofa);
+
+            Mover.AddMovement(interactionObject.objectInfo.gameObject, 
+                new Vector3(
+                    transform.position.x,
+                    interactionObject.objectInfo.PersonTransform.position.y, 
+                    interactionObject.objectInfo.PersonTransform.position.z
+                    )
+                );
+
+            while(!Mover.IsAtTarget(interactionObject.objectInfo.gameObject))
             {
                 yield return new WaitForFixedUpdate();
             }
 
-            StartCoroutine(DisableColliderForTime(_sitDownAnimTime));
+            StartCoroutine(DisableColliderForTime(animInfo.AnimationLength));
 
-            _playerAnim.SetBool(_animatorTriggerBoolName, true);
-            yield return new WaitForSeconds(_sitDownAnimTime);
+            SetAnimTrigger (interactionObject.objectInfo.PersonAnim, animInfo);
+            yield return new WaitForSeconds(animInfo.AnimationLength);
         }
 
-        private void Shoot()
+        private void Shoot(InteractionObjectInfo interactionObject)
         {
-            DisablePlayerMovement();
             transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(false);
-            Suicide player = _playerAnim.gameObject.GetComponent<Suicide>();
-            player.ShootDown();
 
-        }
-        protected void UpdateHint()
-        {
-            if (!_isSitting)
-                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_sitDownHint);
-            else
-                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_standUpHint);
+            Suicide player = interactionObject.objectInfo.gameObject.GetComponent<Suicide>();
+            player?.ShootDown();
+
         }
 
         private IEnumerator DisableColliderForTime(float time)
@@ -94,22 +108,28 @@ namespace GameJam.Items
 
         #region IInteractable realisation
         public override GameObject InteractableObject { get { return this.gameObject; } }
-        public override void Interact()
+        public override void Interact(GameObject sender)
         {
-            if (!_isSitting)
-                StartCoroutine(SitDown());
-            else if (!_isDayX)
-                StartCoroutine(StandUp());
-            else
-                Shoot();
+            if(!_objectsToInteract.ContainsKey(sender))
+                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>()));
 
-            _isSitting = !_isSitting;
+
+            if (!_objectsToInteract[sender].isSitting)
+                StartCoroutine(SitDown(_objectsToInteract[sender]));
+            else if (!_isDayX)
+                StartCoroutine(StandUp(_objectsToInteract[sender]));
+            else
+                Shoot(_objectsToInteract[sender]);
+
+            _objectsToInteract[sender].isSitting = !_objectsToInteract[sender].isSitting;
         }
 
-        public override void ShowInteractionHint()
+        public override void ShowInteractionHint(GameObject sender)
         {
+            if (!_objectsToInteract.ContainsKey(sender))
+                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>()));
             base._hintDisplay.SetActive(true);
-            if (!_isSitting)
+            if (!_objectsToInteract[sender].isSitting)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_sitDownHint);
             else if (!_isDayX)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_standUpHint);
@@ -125,14 +145,15 @@ namespace GameJam.Items
         #endregion
 
         #region IPlayerMovementRestrictor implementation
-        public void DisablePlayerMovement()
+        public void DisablePlayerMovement(PlayerInput input)
         {
-            _playerInput.IsMovementEnabled = false;
+            input.IsMovementEnabled = false;
+            input.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         }
 
-        public void EnablePlayerMovement()
+        public void EnablePlayerMovement(PlayerInput input)
         {
-            _playerInput.IsMovementEnabled = true;
+            input.IsMovementEnabled = true;
         }
         #endregion
     }

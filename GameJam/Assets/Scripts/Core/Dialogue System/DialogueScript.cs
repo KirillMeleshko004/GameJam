@@ -10,12 +10,9 @@ using UnityEngine;
 
 namespace GameJam.Items
 {
-    public class DialogueScript : MonoBehaviour, IPlayerMovementRestrictor
+    public class DialogueScript : MonoBehaviour
     {
         #region Variables
-        [SerializeField]
-        private PersonToObjectAssign _pto;
-
         [SerializeField]
         private float _nextCharDelay = 0.01f;
 
@@ -86,8 +83,8 @@ namespace GameJam.Items
             for (int i = 0; i < names.Count; i++)
             {
                 GameObject dialogueWindow = Instantiate(_dialogueWindowPrefab, Vector3.zero, Quaternion.identity,
-                  _pto.GetObjectToPerson(names[i]).transform);
-                dialogueWindow.transform.localPosition = _pto.GetOffsetForPerson(names[i]);
+                  PersonToObjectAssign.GetObjectToPerson(names[i]).transform);
+                dialogueWindow.transform.localPosition = PersonToObjectAssign.GetOffsetForPerson(names[i]);
                 SetDialogueWindowScale(dialogueWindow);
                 TextMeshPro dialogueTmpro = dialogueWindow.GetComponentInChildren<TextMeshPro>();
                 _tmrpoForPerson.TryAdd(names[i], dialogueTmpro);
@@ -211,18 +208,6 @@ namespace GameJam.Items
                 Person = person;
                 Line = line;
             }
-        }
-        #endregion
-
-        #region IPlayerMovementRestrictor implementation
-        public void DisablePlayerMovement()
-        {
-            _playerInput.IsMovementEnabled = false;
-        }
-
-        public void EnablePlayerMovement()
-        {
-            _playerInput.IsMovementEnabled = true;
         }
         #endregion
     }

@@ -9,10 +9,10 @@ namespace GameJam.Core.Interactions
         public GameObject InteractableObject { get; }
 
         //Method to interact with object
-        public void Interact();
+        public void Interact(GameObject sender);
 
         //Methods to show interaction hint, when interaction is possible
-        public void ShowInteractionHint();
+        public void ShowInteractionHint(GameObject sender);
         public void HideInteractionHint();
     }
 }

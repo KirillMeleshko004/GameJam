@@ -36,7 +36,7 @@ namespace GameJam.Player
             {
                 IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
                 _interactables.Enqueue(interactable);
-                interactable.ShowInteractionHint();
+                interactable.ShowInteractionHint(gameObject);
             }
         }
 
@@ -60,7 +60,7 @@ namespace GameJam.Player
             if (_playerInput.BasicInteractionInput)
             {
                 IInteractable interactable = _interactables.Peek();
-                interactable.Interact();
+                interactable.Interact(gameObject);
                 //GameObject.Destroy(interactable.InteractableObject);
             }
         }

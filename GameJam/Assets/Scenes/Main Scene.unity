@@ -167,13 +167,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01c54bb4480a86c40b0d96b9fcdb20a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _personToObjectList:
+  _personToObjectListSerializationHelper:
   - _person: Mark
     _object: {fileID: 802390166}
-    _dialogueOffset: {x: -1.16, y: 0.7, z: 0}
+    _dialogueOffset: {x: -1.14, y: 0.7, z: 0}
   - _person: Derek
     _object: {fileID: 1904090535}
-    _dialogueOffset: {x: -1.13, y: 0.7, z: 0}
+    _dialogueOffset: {x: -1.14, y: 0.7, z: 0}
 --- !u!1 &138659279
 GameObject:
   m_ObjectHideFlags: 0
@@ -805,6 +805,7 @@ GameObject:
   - component: {fileID: 802390171}
   - component: {fileID: 802390172}
   - component: {fileID: 802390173}
+  - component: {fileID: 802390174}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -928,6 +929,19 @@ MonoBehaviour:
   _takePistolAnimTime: 1.9
   _takePistolAnimBoolName: isShooting
   _finalScenBuildId: 0
+--- !u!114 &802390174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802390166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 54f2ceeef769fac47ae7b19a0f0a8617, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _animationInfo: {fileID: 0}
 --- !u!1 &815620897
 GameObject:
   m_ObjectHideFlags: 0
@@ -1970,7 +1984,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85da7c86cc808e544980b43e9fa18fc2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _pto: {fileID: 106790255}
   _nextCharDelay: 0.01
   _dialogueWindowPrefab: {fileID: 6457122014816799102, guid: 7ccf5d666c384f647a87d7598cab81aa, type: 3}
   _playerInput: {fileID: 802390168}

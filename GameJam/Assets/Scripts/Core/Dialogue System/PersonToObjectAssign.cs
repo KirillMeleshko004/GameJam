@@ -1,31 +1,45 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace GameJam.Core.Dialogue
 {
-    public class PersonToObjectAssign : MonoBehaviour
+    public class PersonToObjectAssign : MonoBehaviour, ISerializationCallbackReceiver
     {
 
         [SerializeField]
-        private List<PersonToObject> _personToObjectList = new();
+        private List<PersonToObject> _personToObjectListSerializationHelper = new List<PersonToObject>();
 
-        public GameObject GetObjectToPerson(string person)
-        {
-            return (from pto in _personToObjectList where pto.Person == person select pto.Object).First<GameObject>();
-        }
-        public Vector3 GetOffsetForPerson(string person)
-        {
-            return (from pto in _personToObjectList where pto.Person == person select pto.DialogueOffset).First<Vector3>();
-        }
+        private static readonly Dictionary<string, PersonToObject> _personToObjectDict = new();
 
-        public Vector3 GetPositionWithOffset(string person)
+        public static GameObject GetObjectToPerson(string person)
         {
-            return (from pto in _personToObjectList where pto.Person == person 
-                    select pto.DialogueOffset + pto.Object.transform.position).First<Vector3>();
+            return _personToObjectDict[person].Object;
+        }
+        public static Vector3 GetOffsetForPerson(string person)
+        {
+            return _personToObjectDict[person].DialogueOffset;
         }
 
+        public static void SetOffsetForName(string person, Vector3 newOffset)
+        {
+            _personToObjectDict[person].DialogueOffset = newOffset;
+        }
+
+        #region ISerializationCallbackReceiver implementation
+        public void OnAfterDeserialize()
+        {
+            _personToObjectDict.Clear();
+            foreach (var pto in _personToObjectListSerializationHelper)
+                if(!_personToObjectDict.TryAdd(pto.Person, pto))
+                    _personToObjectDict[pto.Person] = pto;
+        }
+
+        public void OnBeforeSerialize()
+        {
+            //No need
+        }
+        #endregion  
 
         [Serializable]
         private sealed class PersonToObject
@@ -39,7 +53,7 @@ namespace GameJam.Core.Dialogue
 
             public string Person { get { return _person; } }
             public GameObject Object { get { return _object; } }
-            public Vector3 DialogueOffset { get { return _dialogueOffset; } }
+            public Vector3 DialogueOffset { get { return _dialogueOffset; } set { _dialogueOffset = value; } }
         }
     }
 }

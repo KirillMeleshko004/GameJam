@@ -38,9 +38,6 @@ namespace GameJam.ExcelMinigame
 
         [SerializeField]
         private GameObject _resultBox;
-
-        [SerializeField]
-        private float _closingTime = 3f;
         #endregion
 
         public string InputValue { get; set; } = string.Empty;

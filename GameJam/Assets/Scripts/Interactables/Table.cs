@@ -7,201 +7,201 @@ using UnityEngine;
 
 namespace GameJam.Items
 {
-    public class Table : BaseInteractable, IPlayerMovementRestrictor
-    {
-        #region Variables
-        [Header("PlayerInput component of current player")]
-        [SerializeField]
-        private PlayerInput _playerInput;
+    //    public class Table : BaseInteractable, IPlayerMovementRestrictor
+    //    {
+    //        #region Variables
+    //        [Header("PlayerInput component of current player")]
+    //        [SerializeField]
+    //        private PlayerInput _playerInput;
 
-        [SerializeField]
-        private DialogueScript _dialogue;
-        [SerializeField]
-        private TextAsset _dialogueText;
+    //        [SerializeField]
+    //        private DialogueScript _dialogue;
+    //        [SerializeField]
+    //        private TextAsset _dialogueText;
 
-        [SerializeField]
-        private Animator _tableAnim;
+    //        [SerializeField]
+    //        private Animator _tableAnim;
 
-        [SerializeField]
-        private Animator _playerAnim;
+    //        [SerializeField]
+    //        private Animator _playerAnim;
 
-        [Header("Bool trigger name to drink animation")]
-        [SerializeField]
-        private string _animatorTakeCoffeeTriggerName = "takeCoffee";
-        [SerializeField]
-        private string _animatorDrinkTriggerName = "drinkCoffee";
-        [SerializeField]
-        private string _animatorLeaveTableTriggerName = "leaveTable";
+    //        [Header("Bool trigger name to drink animation")]
+    //        [SerializeField]
+    //        private string _animatorTakeCoffeeTriggerName = "takeCoffee";
+    //        [SerializeField]
+    //        private string _animatorDrinkTriggerName = "drinkCoffee";
+    //        [SerializeField]
+    //        private string _animatorLeaveTableTriggerName = "leaveTable";
 
-        private bool _isInteracting = false;
-        private bool _isDrinking = false;
-        private bool _isLeaving = false;
+    //        private bool _isInteracting = false;
+    //        private bool _isDrinking = false;
+    //        private bool _isLeaving = false;
 
-        private bool _canLeave = false;
-
-
-        [Header("Messages, that show up as a hint")]
-        [SerializeField]
-        private string _takeCup = "Prees E to take cup";
-        [SerializeField]
-        private string _drink = "Prees E to drink coffee";
-
-        [Header("Length of animation clips")]
-        [SerializeField]
-        private float _takingCupAnimTime = 0.66f;
-        [SerializeField]
-        private float _drinkAnimTime = 0.66f;
+    //        private bool _canLeave = false;
 
 
+    //        [Header("Messages, that show up as a hint")]
+    //        [SerializeField]
+    //        private string _takeCup = "Prees E to take cup";
+    //        [SerializeField]
+    //        private string _drink = "Prees E to drink coffee";
 
-        [SerializeField]
-        private float _drinkRepeatTime = 10f;
-        [SerializeField]
-        private float _drinkStartDelay = 2f;
+    //        [Header("Length of animation clips")]
+    //        [SerializeField]
+    //        private float _takingCupAnimTime = 0.66f;
+    //        [SerializeField]
+    //        private float _drinkAnimTime = 0.66f;
 
 
-        [SerializeField]
-        private Vector3 _playerPosOffset = Vector3.zero;
+
+    //        [SerializeField]
+    //        private float _drinkRepeatTime = 10f;
+    //        [SerializeField]
+    //        private float _drinkStartDelay = 2f;
 
 
-        [Header("Messages, that show up as a hint")]
-        [SerializeField]
-        private string _takeCoffeeHint = "Press E to take coffee";
-        [SerializeField]
-        private string _leaveTableHind = "Press E to leave the table";
-        [SerializeField]
-        private string _continueDialogueHint = "Press E to continue";
-        #endregion
+    //        [SerializeField]
+    //        private Vector3 _playerPosOffset = Vector3.zero;
 
-        #region Custom methods
 
-        private void ResetTable()
-        {
-            _isInteracting = false;
-            _isDrinking = false;
-            _isLeaving = false;
-            _canLeave = false;
-        }
+    //        [Header("Messages, that show up as a hint")]
+    //        [SerializeField]
+    //        private string _takeCoffeeHint = "Press E to take coffee";
+    //        [SerializeField]
+    //        private string _leaveTableHind = "Press E to leave the table";
+    //        [SerializeField]
+    //        private string _continueDialogueHint = "Press E to continue";
+    //        #endregion
 
-        private IEnumerator TakeCup()
-        {
-            Debug.Log("Here");
-            DisablePlayerMovement();
-            _isInteracting = true;
-            _canLeave = _dialogue == null;
-            Mover.AddMovement(_playerInput.gameObject, new Vector3(transform.position.x,
-                _playerInput.transform.position.y, _playerInput.transform.position.z) + _playerPosOffset);
-            while (!Mover.IsAtTarget(_playerInput.gameObject))
-                yield return new WaitForFixedUpdate();
+    //        #region Custom methods
 
-            StartCoroutine(DisableColliderForTime(_takingCupAnimTime));
-            _playerAnim.SetTrigger(_animatorTakeCoffeeTriggerName);
-            yield return new WaitForSeconds(_takingCupAnimTime);
+    //        private void ResetTable()
+    //        {
+    //            _isInteracting = false;
+    //            _isDrinking = false;
+    //            _isLeaving = false;
+    //            _canLeave = false;
+    //        }
 
-            Invoke(nameof(StartDrinkAnimation), _drinkStartDelay);
-        }
-        
+    //        private IEnumerator TakeCup()
+    //        {
+    //            DisablePlayerMovement();
+    //            _isInteracting = true;
+    //            _canLeave = _dialogue == null;
+    //            Mover.AddMovement(_playerInput.gameObject, new Vector3(transform.position.x,
+    //                _playerInput.transform.position.y, _playerInput.transform.position.z) + _playerPosOffset);
+    //            while (!Mover.IsAtTarget(_playerInput.gameObject))
+    //                yield return new WaitForFixedUpdate();
 
-        private void StartDrinkAnimation()
-        {
-            if (_isLeaving)
-            {
-                CancelInvoke(nameof(StartDrinkAnimation));
-                return;
-            }
-            StartCoroutine(Drink());
-        }
+    //            StartCoroutine(DisableColliderForTime(_takingCupAnimTime));
+    //            _playerAnim.SetTrigger(_animatorTakeCoffeeTriggerName);
+    //            yield return new WaitForSeconds(_takingCupAnimTime);
 
-        private IEnumerator Drink()
-        {
-            _isDrinking = true;
-            _playerAnim.SetTrigger(_animatorDrinkTriggerName);
-            yield return new WaitForSeconds(_drinkAnimTime);
-            _isDrinking = false;
-        }
+    //            Invoke(nameof(StartDrinkAnimation), _drinkStartDelay);
+    //        }
 
-        private IEnumerator LeaveTheTable()
-        {
-            _isLeaving = true;
-            SetColliderState(false);
-            while (_isDrinking) yield return new WaitForFixedUpdate();
-            _playerAnim.SetTrigger(_animatorLeaveTableTriggerName);
 
-            yield return new WaitForSeconds(_takingCupAnimTime);
-            EnablePlayerMovement();
-            ResetTable();
-            SetColliderState(true);
-        }
+    //        private void StartDrinkAnimation()
+    //        {
+    //            if (_isLeaving)
+    //            {
+    //                CancelInvoke(nameof(StartDrinkAnimation));
+    //                return;
+    //            }
+    //            StartCoroutine(Drink());
+    //        }
 
-        private IEnumerator DisableColliderForTime(float time)
-        {
-            SetColliderState(false);
-            yield return new WaitForSeconds(time);
-            SetColliderState(true);
-        }
-        private void SetColliderState(bool state)
-        {
-            transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(state);
-        }
+    //        private IEnumerator Drink()
+    //        {
+    //            _isDrinking = true;
+    //            _playerAnim.SetTrigger(_animatorDrinkTriggerName);
+    //            yield return new WaitForSeconds(_drinkAnimTime);
+    //            _isDrinking = false;
+    //        }
 
-        private void HandleDialogue()
-        {
-            if (!_dialogue.IsDisplaying)
-            {
-                _dialogue.StartDialogue(_dialogueText);
-            }
-            else if (_dialogue.IsTypingNow)
-                _dialogue.SkipTextAnimation();
-            else if (!_dialogue.IsCompleted)
-                _dialogue.ShowNextSentence();
-            else
-            {
-                _dialogue.FinishDialogue();
-                StartCoroutine(LeaveTheTable());
-            }
-        }
-        #endregion
+    //        private IEnumerator LeaveTheTable()
+    //        {
+    //            _isLeaving = true;
+    //            SetColliderState(false);
+    //            while (_isDrinking) yield return new WaitForFixedUpdate();
+    //            _playerAnim.SetTrigger(_animatorLeaveTableTriggerName);
 
-        #region IInteractable realisation
-        public override GameObject InteractableObject { get { return this.gameObject; } }
-        public override void Interact()
-        {
-            if (!_isInteracting)
-                StartCoroutine(TakeCup());
-            else if (!_canLeave)
-            {
-                if (_dialogue != null)
-                {
-                    HandleDialogue();
-                }
-            }
-            else
-                StartCoroutine(LeaveTheTable());
+    //            yield return new WaitForSeconds(_takingCupAnimTime);
+    //            EnablePlayerMovement();
+    //            ResetTable();
+    //            SetColliderState(true);
+    //        }
 
-        }
+    //        private IEnumerator DisableColliderForTime(float time)
+    //        {
+    //            SetColliderState(false);
+    //            yield return new WaitForSeconds(time);
+    //            SetColliderState(true);
+    //        }
+    //        private void SetColliderState(bool state)
+    //        {
+    //            transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(state);
+    //        }
 
-        public override void ShowInteractionHint()
-        {
-            base._hintDisplay.SetActive(true);
-        }
-        public override void HideInteractionHint()
-        {
-            base._hintDisplay.GetComponent<HintDisplay>().HideHint();
-            base._hintDisplay.SetActive(false);
-        }
+    //        private void HandleDialogue()
+    //        {
+    //            if (!_dialogue.IsDisplaying)
+    //            {
+    //                _dialogue.StartDialogue(_dialogueText);
+    //            }
+    //            else if (_dialogue.IsTypingNow)
+    //                _dialogue.SkipTextAnimation();
+    //            else if (!_dialogue.IsCompleted)
+    //                _dialogue.ShowNextSentence();
+    //            else
+    //            {
+    //                _dialogue.FinishDialogue();
+    //                StartCoroutine(LeaveTheTable());
+    //            }
+    //        }
+    //        #endregion
 
-        #endregion
+    //        #region IInteractable realisation
+    //        public override GameObject InteractableObject { get { return this.gameObject; } }
+    //        public override void Interact()
+    //        {
+    //            if (!_isInteracting)
+    //                StartCoroutine(TakeCup());
+    //            else if (!_canLeave)
+    //            {
+    //                if (_dialogue != null)
+    //                {
+    //                    HandleDialogue();
+    //                }
+    //            }
+    //            else
+    //                StartCoroutine(LeaveTheTable());
 
-        #region IPlayerMovementRestrictor implementation
-        public void DisablePlayerMovement()
-        {
-            _playerInput.IsMovementEnabled = false;
-        }
+    //        }
 
-        public void EnablePlayerMovement()
-        {
-            _playerInput.IsMovementEnabled = true;
-        }
-        #endregion
-    }
+    //        public override void ShowInteractionHint()
+    //        {
+    //            base._hintDisplay.SetActive(true);
+    //        }
+    //        public override void HideInteractionHint()
+    //        {
+    //            base._hintDisplay.GetComponent<HintDisplay>().HideHint();
+    //            base._hintDisplay.SetActive(false);
+    //        }
+
+    //        #endregion
+
+    //        #region IPlayerMovementRestrictor implementation
+    //        public void DisablePlayerMovement()
+    //        {
+    //            _playerInput.IsMovementEnabled = false;
+    //            _playerInput.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+    //        }
+
+    //        public void EnablePlayerMovement()
+    //        {
+    //            _playerInput.IsMovementEnabled = true;
+    //        }
+    //        #endregion
+    //    }
 }

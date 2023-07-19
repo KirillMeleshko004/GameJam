@@ -5,7 +5,7 @@ namespace GameJam.Core.Interactions
 {
     public interface IPlayerMovementRestrictor
     {
-        public void DisablePlayerMovement();
-        public void EnablePlayerMovement();
+        public void DisablePlayerMovement(PlayerInput input);
+        public void EnablePlayerMovement(PlayerInput input);
     }
 }
