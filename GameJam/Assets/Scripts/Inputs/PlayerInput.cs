@@ -1,4 +1,6 @@
+using GameJam.Core.Controllers;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace GameJam.Inputs
 {
@@ -24,6 +26,10 @@ namespace GameJam.Inputs
         {
             HandleHorizontalInput();
             HandleInteractionInput();
+            if(Input.GetKeyDown(KeyCode.Space))
+            {
+                GameObject.FindGameObjectWithTag("Scene manager").GetComponent<BaseSceneController>().NextAction();
+            }
         }
         #endregion
 

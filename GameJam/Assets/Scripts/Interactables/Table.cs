@@ -156,8 +156,8 @@ namespace GameJam.Items
                 _dialogue.ShowNextSentence();
             else
             {
-                _canLeave = true;
                 _dialogue.FinishDialogue();
+                StartCoroutine(LeaveTheTable());
             }
         }
         #endregion

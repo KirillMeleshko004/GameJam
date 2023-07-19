@@ -1,6 +1,7 @@
+using UnityEngine;
+
 namespace GameJam.Core.Movement
 {
-
     public interface IMovementController
     {
         public float MaxSpeed { get; }
