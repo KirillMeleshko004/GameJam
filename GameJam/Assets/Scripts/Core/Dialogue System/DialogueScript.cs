@@ -85,11 +85,23 @@ namespace GameJam.Items
 
             for (int i = 0; i < names.Count; i++)
             {
-                GameObject dialogueWindow = Instantiate(_dialogueWindowPrefab, _pto.GetPositionWithOffset(names[i]), Quaternion.identity);
+                GameObject dialogueWindow = Instantiate(_dialogueWindowPrefab, Vector3.zero, Quaternion.identity,
+                  _pto.GetObjectToPerson(names[i]).transform);
+                dialogueWindow.transform.localPosition = _pto.GetOffsetForPerson(names[i]);
+                SetDialogueWindowScale(dialogueWindow);
                 TextMeshPro dialogueTmpro = dialogueWindow.GetComponentInChildren<TextMeshPro>();
                 _tmrpoForPerson.TryAdd(names[i], dialogueTmpro);
                 SetDialogueWindowActive(false, dialogueTmpro);
             }
+        }
+        private void SetDialogueWindowScale(GameObject dialogueWindow)
+        {
+            float xProportion = 1f / dialogueWindow.transform.parent.localScale.x;
+            float yProportion = 1f / dialogueWindow.transform.parent.localScale.y;
+            float zProportion = 1f / dialogueWindow.transform.parent.localScale.z;
+            
+            dialogueWindow.transform.localScale = new Vector3(dialogueWindow.transform.localScale.x * xProportion,
+                dialogueWindow.transform.localScale.y * yProportion, dialogueWindow.transform.localScale.z * zProportion);
         }
 
         public void ShowNextSentence()
