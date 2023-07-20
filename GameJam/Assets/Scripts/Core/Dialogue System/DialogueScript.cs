@@ -38,7 +38,7 @@ namespace GameJam.Items
 
         public bool IsSuspended { get; private set; } = false;
 
-        public string CurrentLine { get; private set; }
+        public DialogueLine CurrentLine { get; private set; }
         #endregion
 
         #region Built-in methods
@@ -66,10 +66,10 @@ namespace GameJam.Items
 
         private void ResetParameters()
         {
-            IsTypingNow = false;
-            IsDisplaying = false;
-            _currentLineInd = 0;
-            _currentActiveText = null;
+            //IsTypingNow = false;
+            //IsDisplaying = false;
+            //_currentLineInd = 0;
+            //_currentActiveText = null;
             _tmrpoForPerson.Clear();
             DialogueLines.Clear();
         }
@@ -93,9 +93,20 @@ namespace GameJam.Items
         }
         private void SetDialogueWindowScale(GameObject dialogueWindow)
         {
-            float xProportion = 1f / dialogueWindow.transform.parent.localScale.x;
-            float yProportion = 1f / dialogueWindow.transform.parent.localScale.y;
-            float zProportion = 1f / dialogueWindow.transform.parent.localScale.z;
+            float xProportion = 1f;
+            float yProportion = 1f;
+            float zProportion = 1f;
+
+            Transform parentTransform = dialogueWindow.transform;
+
+            while(parentTransform != dialogueWindow.transform.root)
+            {
+                xProportion = xProportion / parentTransform.parent.localScale.x;
+                yProportion = yProportion / parentTransform.parent.localScale.y;
+                zProportion = zProportion / parentTransform.parent.localScale.z;
+
+                parentTransform = parentTransform.parent;
+            }
             
             dialogueWindow.transform.localScale = new Vector3(dialogueWindow.transform.localScale.x * xProportion,
                 dialogueWindow.transform.localScale.y * yProportion, dialogueWindow.transform.localScale.z * zProportion);
@@ -103,33 +114,30 @@ namespace GameJam.Items
 
         public void ShowNextSentence()
         {
-            if(IsSuspended) return;
+            if(IsTypingNow)
+            {
+                SkipTextAnimation();
+                return;
+            }
             if (_currentLineInd == DialogueLines.Count)
             {
                 IsCompleted = true;
                 return;
             }
-            if(_currentActiveText == null)
-            {
-                _currentActiveText = _tmrpoForPerson[DialogueLines[_currentLineInd].Person];
-                ClearText(_currentActiveText);
-                SetDialogueWindowActive(true, _currentActiveText);
-            }
-            else
-            {
 
+            if(_currentActiveText != null)
                 SetDialogueWindowActive(false, _currentActiveText);
-                _currentActiveText = _tmrpoForPerson[DialogueLines[_currentLineInd].Person];
-                ClearText(_currentActiveText);
-                SetDialogueWindowActive(true, _currentActiveText);
-            }
+            
+            _currentActiveText = _tmrpoForPerson[DialogueLines[_currentLineInd].Person];
+            ClearText(_currentActiveText);
+            SetDialogueWindowActive(true, _currentActiveText);
 
+            CurrentLine = DialogueLines[_currentLineInd];
             StartCoroutine(WriteLine(DialogueLines[_currentLineInd].Line, _currentActiveText));
         }
 
         private IEnumerator WriteLine(string line, TextMeshPro tmpro)
         {
-            CurrentLine = line;
             IsTypingNow = true;
 
             for (int i = 0; i < line.Length; i++)
@@ -193,7 +201,7 @@ namespace GameJam.Items
                 DialogueLines.Add(new DialogueLine(personLinePair[0], personLinePair[1]));
             }
         }
-        private sealed class DialogueLine
+        public sealed class DialogueLine
         {
             [SerializeField]
             private string _person;

@@ -13,6 +13,12 @@ namespace GameJam.Items
     public class Sofa : BaseInteractable
     {
         #region Variables
+
+        [SerializeField]
+        private DialogueScript _dialogue;
+        [SerializeField]
+        private TextAsset _dialogueText = null;
+
         [SerializeField]
         private GameObject _player;
 
@@ -23,6 +29,8 @@ namespace GameJam.Items
         private string _standUpHint = "Prees E to stand up";
         [SerializeField]
         private string _shootHint = "Prees E to shoot";
+        [SerializeField]
+        private string _nextLineHint = "Prees E to continue";
 
         [Header("Is last scene")]
         [SerializeField]
@@ -38,11 +46,12 @@ namespace GameJam.Items
         {
             public PersonObject objectInfo;
             public bool isSitting = false;
+            public bool canLeave = false;
 
-            public InteractionObjectInfo(PersonObject objectInfo, bool isSitting = false)
+            public InteractionObjectInfo(PersonObject objectInfo, bool canLeave)
             {
                 this.objectInfo = objectInfo;
-                this.isSitting = isSitting;
+                this.canLeave = canLeave;
             }
         }
         #endregion
@@ -52,7 +61,6 @@ namespace GameJam.Items
         {
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.StandUpFromSofa);
             interactionObject.objectInfo.DisableInteractions();
-            //StartCoroutine(DisableColliderForTime(animInfo.AnimationLength));
 
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
 
@@ -81,10 +89,12 @@ namespace GameJam.Items
                 yield return new WaitForFixedUpdate();
             }
 
-            //StartCoroutine(DisableColliderForTime(animInfo.AnimationLength));
 
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
             yield return new WaitForSeconds(animInfo.AnimationLength);
+
+            if(_dialogueText!= null)
+                _dialogue.StartDialogue(_dialogueText);
 
             interactionObject.objectInfo.EnableInteractions();
         }
@@ -98,12 +108,19 @@ namespace GameJam.Items
 
         }
 
-        //private IEnumerator DisableColliderForTime(float time)
-        //{
-        //    transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(false);
-        //    yield return new WaitForSeconds(time);
-        //    transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(true);
-        //}
+
+        private void HandleDialogue()
+        {
+            if (_dialogue.IsCompleted)
+            {
+                _dialogue.FinishDialogue();
+                _objectsToInteract[_player].canLeave = true;
+            }
+            else
+            {
+                _dialogue.ShowNextSentence();
+            }
+        }
         #endregion
 
         #region IInteractable realisation
@@ -111,33 +128,45 @@ namespace GameJam.Items
         public override void Interact(GameObject sender)
         {
             if(!_objectsToInteract.ContainsKey(sender))
-                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>()));
+                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>(), 
+                    _dialogueText == null));
 
 
             if (!_objectsToInteract[sender].isSitting)
+            {
                 StartCoroutine(SitDown(_objectsToInteract[sender]));
-            else if (!_isDayX)
-                StartCoroutine(StandUp(_objectsToInteract[sender]));
-            else
+                _objectsToInteract[sender].isSitting = !_objectsToInteract[sender].isSitting;
+            }
+
+            else if (_isDayX)
                 Shoot(_objectsToInteract[sender]);
 
-            _objectsToInteract[sender].isSitting = !_objectsToInteract[sender].isSitting;
+            else if (!_objectsToInteract[sender].canLeave)
+                HandleDialogue();
+            else
+                StartCoroutine(StandUp(_objectsToInteract[sender]));
+
+
+            ShowInteractionHint();
         }
 
-        public override void ShowInteractionHint(GameObject sender)
+        public override void ShowInteractionHint()
         {
-            if (sender != _player) return;
+            if (_player == null) return;
 
-            if (!_objectsToInteract.ContainsKey(sender))
-                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>()));
+            if (!_objectsToInteract.ContainsKey(_player))
+                _objectsToInteract.Add(_player, new InteractionObjectInfo(_player.GetComponent<PersonObject>(), 
+                    _dialogueText == null));
 
             base._hintDisplay.SetActive(true);
-            if (!_objectsToInteract[sender].isSitting)
+            if (!_objectsToInteract[_player].isSitting)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_sitDownHint);
-            else if (!_isDayX)
+            else if (_objectsToInteract[_player].canLeave)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_standUpHint);
-            else
+            else if(_isDayX)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_shootHint);
+            else
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_nextLineHint);
         }
         public override void HideInteractionHint()
         {

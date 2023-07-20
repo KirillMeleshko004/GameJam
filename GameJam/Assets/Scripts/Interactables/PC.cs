@@ -75,12 +75,12 @@ namespace GameJam.Items
         private void OnGameCompleted()
         {
             _objectsToInteract[_player].workCompleted = true;
-            ShowInteractionHint(_player);
+            ShowInteractionHint();
         }
         private IEnumerator StartWorkForPlayer(InteractionObjectInfo interactionObject)
         {
             interactionObject.objectInfo.DisableMovements();
-            interactionObject.objectInfo.DisableInteractions();
+            HideInteractionHint();
 
             //Play sit down animation
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.SitDownToChair);
@@ -107,7 +107,6 @@ namespace GameJam.Items
         {
             interactionObject.objectInfo.DisableMovements();
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
-            //HideInteractionHint();
 
             //Play pc fade out animation
             _pcDisplay.GetComponentInChildren<Animator>().SetTrigger(_animatorClosePcTriggerName);
@@ -142,7 +141,7 @@ namespace GameJam.Items
 
         public override void HideInteractionHint()
         {
-            base._hintDisplay.GetComponent<HintDisplay>().HideHint();
+                base._hintDisplay.GetComponent<HintDisplay>().HideHint();
             base._hintDisplay.SetActive(false);
         }
 
@@ -163,15 +162,15 @@ namespace GameJam.Items
             }
         }
 
-        public override void ShowInteractionHint(GameObject sender)
+        public override void ShowInteractionHint()
         {
-            if (sender != _player) return;
+            if (_player == null) return;
 
-            if (!_objectsToInteract.ContainsKey(sender))
-                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>(), sender == _player));
+            if (!_objectsToInteract.ContainsKey(_player))
+                _objectsToInteract.Add(_player, new InteractionObjectInfo(_player.GetComponent<PersonObject>(), true));
 
             base._hintDisplay.SetActive(true);
-            if (!_objectsToInteract[sender].workCompleted)
+            if (!_objectsToInteract[_player].workCompleted)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_startWorkHint);
             else
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_finishWorkHint);

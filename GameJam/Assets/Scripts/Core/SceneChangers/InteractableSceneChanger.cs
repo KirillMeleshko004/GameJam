@@ -58,7 +58,7 @@ namespace GameJam.Core.SceneChangers
             }
         }
 
-        public void ShowInteractionHint(GameObject sender)
+        public void ShowInteractionHint()
         {
             _hintDisplay.SetActive(true);
             _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_changeSceneHint);

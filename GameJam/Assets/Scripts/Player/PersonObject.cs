@@ -23,6 +23,7 @@ namespace GameJam.Player
 
         public void SetAnimTrigger(AnimInfo animInfo)
         {
+            if (animInfo == null) return;
             if (animInfo.TriggerType == TriggerTypes.Bool)
                 PersonAnim.SetBool(animInfo.TriggerValueName, animInfo.TriggerValue);
             else

@@ -4,6 +4,7 @@ using GameJam.Player;
 using GameJam.ScriptableObjects.Animation;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace GameJam.Items
@@ -13,7 +14,7 @@ namespace GameJam.Items
         #region Variables
         [Header("Player gameobject")]
         [SerializeField]
-        private GameObject _player;
+        protected GameObject _player;
 
 
         [SerializeField]
@@ -23,14 +24,6 @@ namespace GameJam.Items
 
         [SerializeField]
         private Animator _tableAnim;
-
-        [Header("Messages, that show up as a hint")]
-        [SerializeField]
-        private string _takeCup = "Prees E to take cup";
-        [SerializeField]
-        private string _drink = "Prees E to drink coffee";
-        [SerializeField]
-        private string _leave = "Prees E to leave the table";
 
         [SerializeField]
         private float _drinkStartDelay = 2f;
@@ -43,14 +36,16 @@ namespace GameJam.Items
         [SerializeField]
         private string _takeCoffeeHint = "Press E to take coffee";
         [SerializeField]
-        private string _leaveTableHind = "Press E to leave the table";
+        private string _leaveTableHint = "Press E to leave the table";
         [SerializeField]
-        private string _continueDialogueHint = "Press E to continue";
+        private string _startDialogueHint = "Press E to start dialogue";
+        [SerializeField]
+        private string _continueDialogueHint = "Press E to continue dialogue";
         #endregion
 
         #region Properties
         public Vector3 PositionOffset { get { return _positionOffset; } set { _positionOffset = value; } }
-        public TextAsset DiialogueText { get { return _dialogueText; } set { _dialogueText = value; } }
+        public TextAsset DialogueText { get { return _dialogueText; } set { _dialogueText = value; } }
         #endregion
 
         #region Interactions info
@@ -66,12 +61,11 @@ namespace GameJam.Items
             public bool isLeaving = false;
             public bool canLeave = false;
 
-            public bool isPlayer;
-            public InteractionObjectInfo(PersonObject objectInfo, bool isPlayer)
+            public InteractionObjectInfo(PersonObject objectInfo, bool canLeave)
             {
                 this.objectInfo = objectInfo;
-                this.isPlayer = isPlayer;
                 this.gameObject = objectInfo.gameObject;
+                this.canLeave = canLeave;
             }
         }
         #endregion
@@ -87,18 +81,16 @@ namespace GameJam.Items
 
         private void ResetTableFor(InteractionObjectInfo interactionObject)
         {
-            interactionObject.isInteracting = false;
-            interactionObject.isDrinking = false;
-            interactionObject.isLeaving = false;
-            interactionObject.canLeave = false;
+            if (_objectsToInteract.ContainsValue(interactionObject))
+                _objectsToInteract.Remove(interactionObject.gameObject);
         }
 
         private IEnumerator TakeCup(InteractionObjectInfo interactionObject)
         {
             interactionObject.objectInfo.DisableMovements();
+            interactionObject.objectInfo.DisableInteractions();
 
             interactionObject.isInteracting = true;
-            interactionObject.canLeave = _dialogueText == null;
 
 
             Mover.AddMovement(interactionObject.gameObject, new Vector3(transform.position.x,
@@ -116,10 +108,9 @@ namespace GameJam.Items
             yield return new WaitForSeconds(animInfo.AnimationLength);
 
             interactionObject.objectInfo.EnableInteractions();
-            Invoke(nameof(StartDrinkAnimation), _drinkStartDelay);
         }
 
-        //need enum?
+        //need ienumerator?
         private void StartDrinkAnimation(InteractionObjectInfo interactionObject)
         {
             if (interactionObject.isLeaving)
@@ -161,18 +152,18 @@ namespace GameJam.Items
 
         private void HandleDialogue()
         {
-            if (!_dialogue.IsDisplaying)
+            if(_dialogue.IsCompleted)
+            {
+                _dialogue.FinishDialogue();
+                _objectsToInteract[_player].canLeave = true;
+            }
+            else if (!_dialogue.IsDisplaying)
             {
                 _dialogue.StartDialogue(_dialogueText);
             }
-            else if (_dialogue.IsTypingNow)
-                _dialogue.SkipTextAnimation();
-            else if (!_dialogue.IsCompleted)
-                _dialogue.ShowNextSentence();
             else
             {
-                _dialogue.FinishDialogue();
-                StartCoroutine(LeaveTheTable(_objectsToInteract[_player]));
+                _dialogue.ShowNextSentence();   
             }
         }
         #endregion
@@ -182,29 +173,45 @@ namespace GameJam.Items
         public override void Interact(GameObject sender)
         {
             if (!_objectsToInteract.ContainsKey(sender))
-                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>(),
-                    sender == _player));
-
-            bool startDialogue = _dialogueText != null && _objectsToInteract[sender].isPlayer &&
-                !_objectsToInteract[sender].canLeave;
+            {
+                _objectsToInteract.Add(sender, new InteractionObjectInfo(
+                            sender.GetComponent<PersonObject>(),
+                            sender != _player || _dialogueText == null));
+            }
 
             if (!_objectsToInteract[sender].isInteracting)
                 StartCoroutine(TakeCup(_objectsToInteract[sender]));
-            else if (startDialogue)
-                    HandleDialogue();
-            else
+            else if (_objectsToInteract[sender].canLeave)
                 StartCoroutine(LeaveTheTable(_objectsToInteract[sender]));
+            else
+                HandleDialogue();
 
+            ShowInteractionHint();
         }
 
-        public override void ShowInteractionHint(GameObject sender)
+        public override void ShowInteractionHint()
         {
-            if (sender != _player) return;
+            if (_player == null) return;
 
-            if (!_objectsToInteract.ContainsKey(sender))
-                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>(), sender == _player));
+            if (!_objectsToInteract.ContainsKey(_player))
+                _objectsToInteract.Add(_player, new InteractionObjectInfo(_player.GetComponent<PersonObject>(),
+                     _dialogueText == null));
 
             base._hintDisplay.SetActive(true);
+            if (!_objectsToInteract[_player].isInteracting)
+            {
+                _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_takeCoffeeHint);
+            }
+            else if(_objectsToInteract[_player].canLeave)
+            {
+                _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_leaveTableHint);
+            }
+            else if (!_dialogue.IsDisplaying)
+            {
+                _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_startDialogueHint);
+            }
+            else
+                _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_continueDialogueHint);
         }
         public override void HideInteractionHint()
         {

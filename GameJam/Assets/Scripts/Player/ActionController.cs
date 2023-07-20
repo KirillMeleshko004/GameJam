@@ -12,7 +12,9 @@ namespace GameJam.Player
     {
         #region Variables
         private PlayerInput _playerInput;
+
         private readonly Queue<IInteractable> _interactables = new();
+      
 
         private bool _areInteractionsDisabled = false;
         private bool _prevState = false;
@@ -22,8 +24,7 @@ namespace GameJam.Player
         public bool AreInteractionsDisabled { get { return _areInteractionsDisabled; }
             set
             {
-                if (_prevState != value)
-                    gameObject.GetComponent<Rigidbody2D>().WakeUp();
+                gameObject.GetComponent<Rigidbody2D>().WakeUp();
                 _areInteractionsDisabled = value;
             }
         }
@@ -45,31 +46,28 @@ namespace GameJam.Player
         {
             if (collision.transform.root.CompareTag("Interactable"))
             {
-                IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
+                if (AreInteractionsDisabled) return;
 
-                if (AreInteractionsDisabled)
-                {
-                    interactable.HideInteractionHint();
-                    return;
-                }
-
-                _interactables.Enqueue(interactable);
-                interactable.ShowInteractionHint(gameObject);
+                AddNewInteractable(collision.transform.root.GetComponent<IInteractable>());     
             }
         }
 
         private void OnTriggerStay2D(Collider2D collision)
         {
+            if (AreInteractionsDisabled == _prevState) return;
+            _prevState = AreInteractionsDisabled;
+
             if (collision.transform.root.CompareTag("Interactable"))
             {
-                if (AreInteractionsDisabled == _prevState) return;
-                _prevState = AreInteractionsDisabled;
-
                 IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
+
+                //Object is in trigger zone
+                //If diasabling during trigger zone hide hint and remove interactable
+                //if enabling - add interactable and show hint
                 if (AreInteractionsDisabled)
-                    interactable.HideInteractionHint();
+                    DeleteInteractable(interactable);
                 else
-                    interactable.ShowInteractionHint(gameObject);
+                    AddNewInteractable(interactable);
             }
         }
 
@@ -77,26 +75,40 @@ namespace GameJam.Player
         {
             if (collision.transform.root.CompareTag("Interactable"))
             {
-                if (AreInteractionsDisabled) return;
-                IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
-                if(_interactables.Count != 0)
-                    _interactables.Dequeue();
-                interactable.HideInteractionHint();
+                DeleteInteractable(collision.transform.root.GetComponent<IInteractable>());
             }
         }
         #endregion
 
 
         #region Custom methods
+
+        private void AddNewInteractable(IInteractable interactable)
+        {
+            if (_interactables.Count == 0)
+                interactable?.ShowInteractionHint();
+
+            if (!_interactables.Contains(interactable))
+                _interactables.Enqueue(interactable);
+        }
+        private void DeleteInteractable(IInteractable interactable)
+        {
+            if (_interactables.Contains(interactable))
+                _interactables.Dequeue();
+
+            interactable?.HideInteractionHint();
+
+            _interactables.TryPeek(out IInteractable top);
+            top?.ShowInteractionHint();
+        }
+
         private void HandleInteractions()
         {
             if (AreInteractionsDisabled) return;
             if (_interactables.Count == 0) return;
             if (_playerInput.BasicInteractionInput)
             {
-                IInteractable interactable = _interactables.Peek();
-                interactable.Interact(gameObject);
-                //GameObject.Destroy(interactable.InteractableObject);
+                _interactables.Peek().Interact(gameObject);
             }
         }
         #endregion

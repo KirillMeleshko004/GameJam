@@ -12,7 +12,7 @@ namespace GameJam.Core.Interactions
         public void Interact(GameObject sender);
 
         //Methods to show interaction hint, when interaction is possible
-        public void ShowInteractionHint(GameObject sender);
+        public void ShowInteractionHint();
         public void HideInteractionHint();
     }
 }

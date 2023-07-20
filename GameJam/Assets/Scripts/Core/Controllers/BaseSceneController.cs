@@ -29,23 +29,14 @@ namespace GameJam.Core.Controllers
 
         private void FirstAction()
         {
-            StartCoroutine(FirstActionCouroutine());
+            FirstActionCouroutine();
         }
-        private IEnumerator FirstActionCouroutine()
+        private void FirstActionCouroutine()
         {
-            //player movement example
 
+            //player movement with action example 
             GameObject player = _scenesGameObjects[1];
             GameObject sofa = _scenesGameObjects[2];
-
-            player.GetComponent<PlayerInput>().IsMovementEnabled = false;
-
-            Mover.AddMovement(player, new Vector3(sofa.transform.position.x, player.transform.position.y, player.transform.position.z));
-
-            while(Mover.IsAtTarget(player))
-                yield return new WaitForFixedUpdate();
-
-            player.GetComponent<PlayerInput>().IsMovementEnabled = true;
 
             sofa.GetComponent<Sofa>().Interact(player);
         }
