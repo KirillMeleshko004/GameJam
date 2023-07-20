@@ -26,10 +26,13 @@ namespace GameJam.Inputs
         {
             HandleHorizontalInput();
             HandleInteractionInput();
-            if(Input.GetKeyDown(KeyCode.Space))
+
+            #region Scene manager test
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 GameObject.FindGameObjectWithTag("Scene manager").GetComponent<BaseSceneController>().NextAction();
             }
+            #endregion
         }
         #endregion
 

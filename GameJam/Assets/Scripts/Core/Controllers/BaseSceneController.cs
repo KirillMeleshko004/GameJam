@@ -1,3 +1,6 @@
+using GameJam.Core.Movement;
+using GameJam.Inputs;
+using GameJam.Items;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,7 +29,25 @@ namespace GameJam.Core.Controllers
 
         private void FirstAction()
         {
-            Debug.Log("First action");
+            StartCoroutine(FirstActionCouroutine());
+        }
+        private IEnumerator FirstActionCouroutine()
+        {
+            //player movement example
+
+            GameObject player = _scenesGameObjects[1];
+            GameObject sofa = _scenesGameObjects[2];
+
+            player.GetComponent<PlayerInput>().IsMovementEnabled = false;
+
+            Mover.AddMovement(player, new Vector3(sofa.transform.position.x, player.transform.position.y, player.transform.position.z));
+
+            while(Mover.IsAtTarget(player))
+                yield return new WaitForFixedUpdate();
+
+            player.GetComponent<PlayerInput>().IsMovementEnabled = true;
+
+            sofa.GetComponent<Sofa>().Interact(player);
         }
         private void SecondAction()
         {

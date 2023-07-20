@@ -322,6 +322,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _scenesGameObjects:
   - {fileID: 1904090535}
+  - {fileID: 802390166}
+  - {fileID: 1515006803}
 --- !u!1 &309461599
 GameObject:
   m_ObjectHideFlags: 0
@@ -869,7 +871,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 802390166}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.56, y: -0.52, z: 0}
+  m_LocalPosition: {x: -13.3, y: -0.52, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -941,7 +943,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54f2ceeef769fac47ae7b19a0f0a8617, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animationInfo: {fileID: 0}
+  _animationInfo: {fileID: 11400000, guid: edb4da04c841f5e42949601666340928, type: 2}
 --- !u!1 &815620897
 GameObject:
   m_ObjectHideFlags: 0
@@ -1168,6 +1170,10 @@ PrefabInstance:
       propertyPath: _isDayX
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 157222388034046478, guid: cdddff8592af5a342b59bc416a7b5362, type: 3}
+      propertyPath: _player
+      value: 
+      objectReference: {fileID: 802390166}
     - target: {fileID: 157222388034046478, guid: cdddff8592af5a342b59bc416a7b5362, type: 3}
       propertyPath: _playerAnim
       value: 
@@ -1471,6 +1477,11 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!1 &1515006803 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 157222388034046479, guid: cdddff8592af5a342b59bc416a7b5362, type: 3}
+  m_PrefabInstance: {fileID: 157222387175441255}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1567857535
 GameObject:
   m_ObjectHideFlags: 0
@@ -1954,21 +1965,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _hintDisplay: {fileID: 545416655}
-  _playerInput: {fileID: 802390168}
+  _player: {fileID: 802390166}
   _dialogue: {fileID: 2013719962}
   _dialogueText: {fileID: 4900000, guid: 8663340a217eed94d8b6c381ea758979, type: 3}
   _tableAnim: {fileID: 0}
-  _playerAnim: {fileID: 802390172}
-  _animatorTakeCoffeeTriggerName: takeCoffee
-  _animatorDrinkTriggerName: drinkCoffee
-  _animatorLeaveTableTriggerName: leaveTable
   _takeCup: Prees E to take cup
   _drink: Prees E to drink coffee
-  _takingCupAnimTime: 1.1
-  _drinkAnimTime: 1.934
-  _drinkRepeatTime: 10
+  _leave: Prees E to leave the table
   _drinkStartDelay: 2
-  _playerPosOffset: {x: 0.854, y: 0, z: 0}
+  _positionOffset: {x: 0, y: 0, z: 0}
   _takeCoffeeHint: Press E to take coffee
   _leaveTableHind: Press E to leave the table
   _continueDialogueHint: Press E to continue
@@ -2119,6 +2124,10 @@ PrefabInstance:
       propertyPath: _mover
       value: 
       objectReference: {fileID: 527215005}
+    - target: {fileID: 157222388034046478, guid: cdddff8592af5a342b59bc416a7b5362, type: 3}
+      propertyPath: _player
+      value: 
+      objectReference: {fileID: 802390166}
     - target: {fileID: 157222388034046478, guid: cdddff8592af5a342b59bc416a7b5362, type: 3}
       propertyPath: _playerAnim
       value: 
@@ -2411,6 +2420,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4422645935470956343, guid: af78572a6e980f14f9a9dc910f80f01b, type: 3}
+      propertyPath: _player
+      value: 
+      objectReference: {fileID: 802390166}
     - target: {fileID: 4422645935470956343, guid: af78572a6e980f14f9a9dc910f80f01b, type: 3}
       propertyPath: _pcDisplay
       value: 

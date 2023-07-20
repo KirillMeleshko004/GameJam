@@ -6,12 +6,16 @@ using GameJam.ScriptableObjects.Animation;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace GameJam.Items
 {
-    public class Sofa : BaseInteractable, IPlayerMovementRestrictor
+    public class Sofa : BaseInteractable
     {
         #region Variables
+        [SerializeField]
+        private GameObject _player;
+
         [Header("Messages, that show up as a hint")]
         [SerializeField]
         private string _sitDownHint = "Prees E to sit down";
@@ -44,29 +48,23 @@ namespace GameJam.Items
         #endregion
 
         #region Custom methods
-        private void SetAnimTrigger(Animator animator, AnimInfo animInfo)
-        {
-            if (animInfo.TriggerType == TriggerTypes.Bool)
-                animator.SetBool(animInfo.TriggerValueName, animInfo.TriggerValue);
-            else
-                animator.SetTrigger(animInfo.TriggerValueName);
-        }
         private IEnumerator StandUp(InteractionObjectInfo interactionObject)
         {
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.StandUpFromSofa);
-            StartCoroutine(DisableColliderForTime(animInfo.AnimationLength));
-            
-            SetAnimTrigger(interactionObject.objectInfo.PersonAnim, animInfo);
+            interactionObject.objectInfo.DisableInteractions();
+            //StartCoroutine(DisableColliderForTime(animInfo.AnimationLength));
+
+            interactionObject.objectInfo.SetAnimTrigger(animInfo);
 
             yield return new WaitForSeconds(animInfo.AnimationLength);
 
-            if(interactionObject.objectInfo.PlayerInput != null)
-                EnablePlayerMovement(interactionObject.objectInfo.PlayerInput);
+            interactionObject.objectInfo.EnableInteractions();
+            interactionObject.objectInfo.EnableMovements();
         }
         private IEnumerator SitDown(InteractionObjectInfo interactionObject)
-        {
-            if (interactionObject.objectInfo.PlayerInput != null)
-                DisablePlayerMovement(interactionObject.objectInfo.PlayerInput);
+        {   
+            interactionObject.objectInfo.DisableMovements();
+            interactionObject.objectInfo.DisableInteractions();
 
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.SitDownToSofa);
 
@@ -83,10 +81,12 @@ namespace GameJam.Items
                 yield return new WaitForFixedUpdate();
             }
 
-            StartCoroutine(DisableColliderForTime(animInfo.AnimationLength));
+            //StartCoroutine(DisableColliderForTime(animInfo.AnimationLength));
 
-            SetAnimTrigger (interactionObject.objectInfo.PersonAnim, animInfo);
+            interactionObject.objectInfo.SetAnimTrigger(animInfo);
             yield return new WaitForSeconds(animInfo.AnimationLength);
+
+            interactionObject.objectInfo.EnableInteractions();
         }
 
         private void Shoot(InteractionObjectInfo interactionObject)
@@ -98,12 +98,12 @@ namespace GameJam.Items
 
         }
 
-        private IEnumerator DisableColliderForTime(float time)
-        {
-            transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(false);
-            yield return new WaitForSeconds(time);
-            transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(true);
-        }
+        //private IEnumerator DisableColliderForTime(float time)
+        //{
+        //    transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(false);
+        //    yield return new WaitForSeconds(time);
+        //    transform.GetChild(0).GetComponent<BoxCollider2D>().gameObject.SetActive(true);
+        //}
         #endregion
 
         #region IInteractable realisation
@@ -126,8 +126,11 @@ namespace GameJam.Items
 
         public override void ShowInteractionHint(GameObject sender)
         {
+            if (sender != _player) return;
+
             if (!_objectsToInteract.ContainsKey(sender))
                 _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>()));
+
             base._hintDisplay.SetActive(true);
             if (!_objectsToInteract[sender].isSitting)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_sitDownHint);
@@ -142,19 +145,6 @@ namespace GameJam.Items
             base._hintDisplay.SetActive(false);
         }
 
-        #endregion
-
-        #region IPlayerMovementRestrictor implementation
-        public void DisablePlayerMovement(PlayerInput input)
-        {
-            input.IsMovementEnabled = false;
-            input.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        }
-
-        public void EnablePlayerMovement(PlayerInput input)
-        {
-            input.IsMovementEnabled = true;
-        }
         #endregion
     }
 }

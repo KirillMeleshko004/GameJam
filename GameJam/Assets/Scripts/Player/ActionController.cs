@@ -1,6 +1,7 @@
 using GameJam.Core.Interactions;
 using GameJam.Inputs;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace GameJam.Player
@@ -12,10 +13,20 @@ namespace GameJam.Player
         #region Variables
         private PlayerInput _playerInput;
         private readonly Queue<IInteractable> _interactables = new();
+
+        private bool _areInteractionsDisabled = false;
+        private bool _prevState = false;
         #endregion
 
         #region Properties
-
+        public bool AreInteractionsDisabled { get { return _areInteractionsDisabled; }
+            set
+            {
+                if (_prevState != value)
+                    gameObject.GetComponent<Rigidbody2D>().WakeUp();
+                _areInteractionsDisabled = value;
+            }
+        }
         #endregion
 
 
@@ -35,8 +46,30 @@ namespace GameJam.Player
             if (collision.transform.root.CompareTag("Interactable"))
             {
                 IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
+
+                if (AreInteractionsDisabled)
+                {
+                    interactable.HideInteractionHint();
+                    return;
+                }
+
                 _interactables.Enqueue(interactable);
                 interactable.ShowInteractionHint(gameObject);
+            }
+        }
+
+        private void OnTriggerStay2D(Collider2D collision)
+        {
+            if (collision.transform.root.CompareTag("Interactable"))
+            {
+                if (AreInteractionsDisabled == _prevState) return;
+                _prevState = AreInteractionsDisabled;
+
+                IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
+                if (AreInteractionsDisabled)
+                    interactable.HideInteractionHint();
+                else
+                    interactable.ShowInteractionHint(gameObject);
             }
         }
 
@@ -44,6 +77,7 @@ namespace GameJam.Player
         {
             if (collision.transform.root.CompareTag("Interactable"))
             {
+                if (AreInteractionsDisabled) return;
                 IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
                 if(_interactables.Count != 0)
                     _interactables.Dequeue();
@@ -56,6 +90,7 @@ namespace GameJam.Player
         #region Custom methods
         private void HandleInteractions()
         {
+            if (AreInteractionsDisabled) return;
             if (_interactables.Count == 0) return;
             if (_playerInput.BasicInteractionInput)
             {

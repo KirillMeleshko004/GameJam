@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace GameJam.Items
 {
-    public class PC : BaseInteractable, IPlayerMovementRestrictor
+    public class PC : BaseInteractable
     {
         #region Variables
         [SerializeField]
@@ -77,23 +77,15 @@ namespace GameJam.Items
             _objectsToInteract[_player].workCompleted = true;
             ShowInteractionHint(_player);
         }
-
-        private void SetAnimTrigger(Animator animator, AnimInfo animInfo)
-        {
-            if (animInfo.TriggerType == TriggerTypes.Bool)
-                animator.SetBool(animInfo.TriggerValueName, animInfo.TriggerValue);
-            else
-                animator.SetTrigger(animInfo.TriggerValueName);
-        }
         private IEnumerator StartWorkForPlayer(InteractionObjectInfo interactionObject)
         {
-            DisablePlayerMovement(interactionObject.objectInfo.PlayerInput);
-            HideInteractionHint();
+            interactionObject.objectInfo.DisableMovements();
+            interactionObject.objectInfo.DisableInteractions();
 
             //Play sit down animation
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.SitDownToChair);
 
-            SetAnimTrigger(interactionObject.objectInfo.PersonAnim, animInfo);
+            interactionObject.objectInfo.SetAnimTrigger(animInfo);
             yield return new WaitForSeconds(animInfo.AnimationLength);
 
             //Play pc fade in animation (default animation on _pcDisplay active
@@ -104,7 +96,7 @@ namespace GameJam.Items
         private void StartWorkForNpc(InteractionObjectInfo interactionObject)
         {
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.SitDownToChair);
-            SetAnimTrigger(interactionObject.objectInfo.PersonAnim, animInfo);
+            interactionObject.objectInfo.SetAnimTrigger(animInfo);
         }
         private void StartWork(InteractionObjectInfo interactionObject)
         {
@@ -113,8 +105,9 @@ namespace GameJam.Items
         }
         private IEnumerator FinishWorkForPlayer(InteractionObjectInfo interactionObject)
         {
+            interactionObject.objectInfo.DisableMovements();
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
-            HideInteractionHint();
+            //HideInteractionHint();
 
             //Play pc fade out animation
             _pcDisplay.GetComponentInChildren<Animator>().SetTrigger(_animatorClosePcTriggerName);
@@ -126,15 +119,15 @@ namespace GameJam.Items
 
             //Play stand up animation
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.StandUpFromChair);
-            SetAnimTrigger(interactionObject.objectInfo.PersonAnim, animInfo);
+            interactionObject.objectInfo.SetAnimTrigger(animInfo);
             yield return new WaitForSeconds(animInfo.AnimationLength);
 
-            EnablePlayerMovement(interactionObject.objectInfo.PlayerInput);
+            interactionObject.objectInfo.EnableMovements();
         }
         private void FinishWorkForNpc(InteractionObjectInfo interactionObject)
         {
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.StandUpFromChair);
-            SetAnimTrigger(interactionObject.objectInfo.PersonAnim, animInfo);
+            interactionObject.objectInfo.SetAnimTrigger(animInfo);
         }
 
         private void FinishWork(InteractionObjectInfo interactionObject)
@@ -172,30 +165,17 @@ namespace GameJam.Items
 
         public override void ShowInteractionHint(GameObject sender)
         {
+            if (sender != _player) return;
+
             if (!_objectsToInteract.ContainsKey(sender))
-                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>(),
-                    sender == _player));
+                _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>(), sender == _player));
+
             base._hintDisplay.SetActive(true);
             if (!_objectsToInteract[sender].workCompleted)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_startWorkHint);
             else
-            {
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_finishWorkHint);
-            }
         }
-
-        #region IPlayerMovementRestrictor implementation
-        public void DisablePlayerMovement(PlayerInput input)
-        {
-            input.IsMovementEnabled = false;
-            input.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        }
-
-        public void EnablePlayerMovement(PlayerInput input)
-        {
-            input.IsMovementEnabled = true;
-        }
-        #endregion
         #endregion
     }
 }
