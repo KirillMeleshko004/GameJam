@@ -1,12 +1,10 @@
 using GameJam.Core.Interactions;
 using GameJam.Core.Movement;
-using GameJam.Inputs;
 using GameJam.Player;
 using GameJam.ScriptableObjects.Animation;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 namespace GameJam.Items
 {

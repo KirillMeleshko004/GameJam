@@ -1,6 +1,6 @@
 using GameJam.Core.Interactions;
+using GameJam.Core.Movement;
 using GameJam.ExcelMinigame;
-using GameJam.Inputs;
 using GameJam.Player;
 using GameJam.ScriptableObjects.Animation;
 using System.Collections;
@@ -36,7 +36,6 @@ namespace GameJam.Items
         private string _animatorClosePcTriggerName = "closePc";
 
         private GameObject _excelGameInstance;
-
         #endregion
 
         #region Properties
@@ -63,6 +62,10 @@ namespace GameJam.Items
         #endregion
 
         #region Custom methods
+        private void ResetPc()
+        {
+            _objectsToInteract.Clear();
+        }
         private void StartExcelGame()
         {
             HideInteractionHint();
@@ -75,12 +78,24 @@ namespace GameJam.Items
         private void OnGameCompleted()
         {
             _objectsToInteract[_player].workCompleted = true;
+            _objectsToInteract[_player].objectInfo.EnableInteractions();
             ShowInteractionHint();
         }
         private IEnumerator StartWorkForPlayer(InteractionObjectInfo interactionObject)
         {
             interactionObject.objectInfo.DisableMovements();
-            HideInteractionHint();
+            interactionObject.objectInfo.DisableInteractions();
+
+
+            Mover.AddMovement(interactionObject.objectInfo.gameObject,
+                new Vector3(
+                    transform.position.x,
+                    interactionObject.objectInfo.PersonTransform.position.y,
+                    interactionObject.objectInfo.PersonTransform.position.z
+                    )
+                );
+            while (!Mover.IsAtTarget(interactionObject.objectInfo.gameObject))
+                yield return new WaitForFixedUpdate();
 
             //Play sit down animation
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.SitDownToChair);
@@ -91,6 +106,7 @@ namespace GameJam.Items
             //Play pc fade in animation (default animation on _pcDisplay active
             _pcDisplay.SetActive(true);
             yield return new WaitForSeconds(_startUpAnimTime / 2f);
+
             StartExcelGame();
         }
         private void StartWorkForNpc(InteractionObjectInfo interactionObject)
@@ -121,12 +137,15 @@ namespace GameJam.Items
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
             yield return new WaitForSeconds(animInfo.AnimationLength);
 
+            ResetPc();
             interactionObject.objectInfo.EnableMovements();
         }
         private void FinishWorkForNpc(InteractionObjectInfo interactionObject)
         {
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.StandUpFromChair);
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
+
+            ResetPc();
         }
 
         private void FinishWork(InteractionObjectInfo interactionObject)
@@ -141,15 +160,20 @@ namespace GameJam.Items
 
         public override void HideInteractionHint()
         {
-                base._hintDisplay.GetComponent<HintDisplay>().HideHint();
+            base._hintDisplay.GetComponent<HintDisplay>().HideHint();
             base._hintDisplay.SetActive(false);
         }
 
         public override void Interact(GameObject sender)
         {
+            foreach (var kvp in _objectsToInteract)
+                if (kvp.Value.isWorking && kvp.Key != sender) return;
+
             if (!_objectsToInteract.ContainsKey(sender))
+            {
                 _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>(),
                     sender == _player));
+            }
 
             if (!_objectsToInteract[sender].isWorking && !_objectsToInteract[sender].workCompleted)
             {
@@ -164,6 +188,11 @@ namespace GameJam.Items
 
         public override void ShowInteractionHint()
         {
+            foreach (var kvp in _objectsToInteract)
+            {
+                if (kvp.Value.isWorking && kvp.Key != _player) return;
+            }
+
             if (_player == null) return;
 
             if (!_objectsToInteract.ContainsKey(_player))

@@ -1,7 +1,5 @@
 using GameJam.Core.Dialogue;
-using GameJam.Core.Interactions;
 using GameJam.Inputs;
-using GameJam.ScriptableObjects.Dialogue;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;

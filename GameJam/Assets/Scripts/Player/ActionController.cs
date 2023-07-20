@@ -13,7 +13,7 @@ namespace GameJam.Player
         #region Variables
         private PlayerInput _playerInput;
 
-        private readonly Queue<IInteractable> _interactables = new();
+        private Queue<IInteractable> _interactables = new();
       
 
         private bool _areInteractionsDisabled = false;
@@ -108,7 +108,8 @@ namespace GameJam.Player
             if (_interactables.Count == 0) return;
             if (_playerInput.BasicInteractionInput)
             {
-                _interactables.Peek().Interact(gameObject);
+                _interactables.TryPeek(out IInteractable top);
+                top?.Interact(gameObject);
             }
         }
         #endregion

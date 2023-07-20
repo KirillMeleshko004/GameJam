@@ -41,7 +41,7 @@ namespace GameJam.ScriptableObjects.Animation
         {
             _animationsDict.Clear();
             foreach (var animation in _animations) 
-                _animationsDict.Add(animation.AnimationType, animation);
+                _animationsDict.TryAdd(animation.AnimationType, animation);
         }
 
         public void OnBeforeSerialize()

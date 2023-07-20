@@ -4,7 +4,6 @@ using GameJam.Player;
 using GameJam.ScriptableObjects.Animation;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace GameJam.Items

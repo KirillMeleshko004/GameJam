@@ -1,6 +1,4 @@
 using GameJam.Core.Movement;
-using GameJam.Inputs;
-using GameJam.Items;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,7 +15,7 @@ namespace GameJam.Core.Controllers
 
         private void Start()
         {
-            _actionsToPerform.Enqueue(FirstAction);
+            _actionsToPerform.Enqueue(SecondAction);
             _actionsToPerform.Enqueue(SecondAction);
         }
 
@@ -35,14 +33,22 @@ namespace GameJam.Core.Controllers
         {
 
             //player movement with action example 
-            GameObject player = _scenesGameObjects[1];
-            GameObject sofa = _scenesGameObjects[2];
-
-            sofa.GetComponent<Sofa>().Interact(player);
+            Mover.AddMovement(_scenesGameObjects[0], _scenesGameObjects[2].transform.position);
         }
         private void SecondAction()
         {
-            Debug.Log("Second action");
+            StartCoroutine(Second());
+        }
+
+        private IEnumerator Second()
+        {
+            GameObject derek = _scenesGameObjects[0];
+
+            Mover.AddMovement(derek, _scenesGameObjects[3].transform.position);
+            while(!Mover.IsAtTarget(derek))
+                yield return new WaitForFixedUpdate();
+
+            derek.GetComponent<NpcActionController>().PerfomAction("Sit Down");
         }
     }
 }
