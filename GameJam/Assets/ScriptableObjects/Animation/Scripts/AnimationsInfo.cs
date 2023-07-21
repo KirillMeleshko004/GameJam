@@ -15,7 +15,8 @@ namespace GameJam.ScriptableObjects.Animation
         Shoot,
         TakeCoffee,
         DrinkCoffee,
-        LeaveTable
+        LeaveTable,
+        Sleep
     }
     public enum TriggerTypes
     {

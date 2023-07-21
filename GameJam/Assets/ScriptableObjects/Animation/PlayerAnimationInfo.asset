@@ -63,3 +63,8 @@ MonoBehaviour:
     _triggerValueName: leaveTable
     _triggerValue: 1
     _animationLength: 1.1
+  - _animationType: 10
+    _triggerType: 0
+    _triggerValueName: sleep
+    _triggerValue: 1
+    _animationLength: 1.866

@@ -13,6 +13,11 @@ namespace GameJam.Core.Camera
 
         [SerializeField]
         private float maxSpeed = 0.1f;
+
+        [SerializeField]
+        private float _maxLeft;
+        [SerializeField]
+        private float _maxRight;
         #endregion
 
         #region Built-in methods
@@ -20,6 +25,10 @@ namespace GameJam.Core.Camera
         {
             Vector3 target = new Vector3(_target.position.x, transform.position.y, transform.position.z);
             transform.position = Vector3.Lerp(transform.position, target, maxSpeed * Time.deltaTime);
+            if (transform.position.x < _maxLeft)
+                transform.position = new Vector3(_maxLeft, transform.position.y, transform.position.z);
+            else if (transform.position.x > _maxRight)
+                transform.position = new Vector3(_maxRight, transform.position.y, transform.position.z);
         }
         #endregion
     }

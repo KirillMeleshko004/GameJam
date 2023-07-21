@@ -12,6 +12,48 @@ EditorBuildSettings:
     path: Assets/Scenes/Main Scene.unity
     guid: 809e18b3cb3fa054ab7a62ba400a82fe
   - enabled: 1
-    path: Assets/Scenes/Scene2.unity
-    guid: 1c5ce9a8a86fd1e459dc2168bcd89ad4
+    path: Assets/Scenes/Day1/1-1.unity
+    guid: 05a5c0f5c5aca8e4db12a922ae09c35c
+  - enabled: 1
+    path: Assets/Scenes/Day1/1-2.unity
+    guid: 9a4a1450be3dddc4f96e310705e297c7
+  - enabled: 1
+    path: Assets/Scenes/Day1/1-3.unity
+    guid: f8570b7f27cb9c448863448bfdc4285f
+  - enabled: 1
+    path: Assets/Scenes/Day1/1-4.unity
+    guid: f16eb437dc8e3104bbfdc16fe662d577
+  - enabled: 1
+    path: Assets/Scenes/Day1/1-5.unity
+    guid: 2cf3e0be0599a1c42af7b5e50876f0aa
+  - enabled: 1
+    path: Assets/Scenes/Day2/2-1.unity
+    guid: 1f0ec6980d16a77448384a6397da16f9
+  - enabled: 1
+    path: Assets/Scenes/Day2/2-2.unity
+    guid: 2b17cb05195585544b9427aeaa7b7146
+  - enabled: 1
+    path: Assets/Scenes/Day2/2-3.unity
+    guid: f87678269db75104bb45501824e0db7b
+  - enabled: 1
+    path: Assets/Scenes/Day2/2-4.unity
+    guid: d2119d07d6b302b49ba0babbb23e4893
+  - enabled: 1
+    path: Assets/Scenes/Day2/2-5.unity
+    guid: b68bad848b720e147bdfad66adad57bd
+  - enabled: 1
+    path: Assets/Scenes/Day3/3-1.unity
+    guid: 70e3e17146a1d854a83c4af184e3d4c0
+  - enabled: 1
+    path: Assets/Scenes/Day3/3-2.unity
+    guid: 6856c2330ad3c1142add955a841b8476
+  - enabled: 1
+    path: Assets/Scenes/Day3/3-3.unity
+    guid: b23736fc0d9c54c49a30dd903a231789
+  - enabled: 1
+    path: Assets/Scenes/Day3/3-4.unity
+    guid: d18babb19feb6814a9b0feb63b4bf22a
+  - enabled: 1
+    path: Assets/Scenes/Day3/3-5.unity
+    guid: e46b24199e0efdc4f9a734e0c182a450
   m_configObjects: {}

@@ -5,10 +5,11 @@ using GameJam.ScriptableObjects.Animation;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace GameJam.Items
 {
-    public class Sofa : BaseInteractable
+    public class Sofa : BaseInteractable, ISerializationCallbackReceiver
     {
         #region Variables
 
@@ -37,6 +38,12 @@ namespace GameJam.Items
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
+
+
+        [SerializeField]
+        private List<UnityEvent> _actionHelperList = new List<UnityEvent>();
+
+        private readonly Queue<UnityEvent> _actionsOnStandUp = new Queue<UnityEvent>();
         #endregion
 
         #region Properties
@@ -75,6 +82,8 @@ namespace GameJam.Items
             interactionObject.objectInfo.EnableInteractions();
             interactionObject.objectInfo.EnableMovements();
             ResetSofa();
+            _actionsOnStandUp.TryDequeue(out UnityEvent action);
+            action?.Invoke();
         }
         private IEnumerator SitDown(InteractionObjectInfo interactionObject)
         {   
@@ -168,10 +177,10 @@ namespace GameJam.Items
             base._hintDisplay.SetActive(true);
             if (!_objectsToInteract[_player].isSitting)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_sitDownHint);
+            else if (_isDayX)
+                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_shootHint);
             else if (_objectsToInteract[_player].canLeave)
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_standUpHint);
-            else if(_isDayX)
-                base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_shootHint);
             else
                 base._hintDisplay.GetComponent<HintDisplay>().DisplayHint(_nextLineHint);
         }
@@ -181,6 +190,21 @@ namespace GameJam.Items
             base._hintDisplay.SetActive(false);
         }
 
+
+        #endregion
+
+        #region ISerializationCallbackReciever implementation
+        public void OnBeforeSerialize()
+        {
+            _actionsOnStandUp.Clear();
+            foreach(var act in _actionHelperList)
+                _actionsOnStandUp.Enqueue(act);
+        }
+
+        public void OnAfterDeserialize()
+        {
+            //No need
+        }
         #endregion
     }
 }
