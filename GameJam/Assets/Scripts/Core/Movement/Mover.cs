@@ -53,8 +53,10 @@ namespace GameJam.Core.Movement
         {
             if (Mathf.Abs(movable.MovableTransform.position.x - movable.Target.x) < _epsilon &&
                 Mathf.Abs(movable.MovableTransform.position.y - movable.Target.y) < _epsilon)
+            {
                 movable.TargetReached = true;
-            movable.MovableRb.velocity = Vector3.zero;
+                movable.MovableRb.velocity = Vector3.zero;
+            }
         }
         private void HandleMovement(MovableInfo movableInfo)
         {

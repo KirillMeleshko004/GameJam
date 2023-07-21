@@ -195,6 +195,7 @@ namespace GameJam.Items
             string[] lines = textFile.text.Split('\n');
             foreach (string line in lines)
             {
+                if (line.Trim() == string.Empty) continue;
                 string[] personLinePair = (from str in line.Split('|').ToList<string>() select str.Trim()).ToArray<string>();
                 DialogueLines.Add(new DialogueLine(personLinePair[0], personLinePair[1]));
             }

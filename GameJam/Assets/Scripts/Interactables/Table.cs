@@ -15,6 +15,12 @@ namespace GameJam.Items
         [SerializeField]
         protected GameObject _player;
 
+        [SerializeField]
+        private GameObject _cup;
+
+        [SerializeField]
+        private bool _autoDrinkEnabled = true;
+
 
         [SerializeField]
         private DialogueScript _dialogue;
@@ -25,7 +31,7 @@ namespace GameJam.Items
         private Animator _tableAnim;
 
         [SerializeField]
-        private float _drinkStartDelay = 2f;
+        private float _drinkDelay = 2f;
 
         [Header("Postition offset relative to table to position objects. Can be change by changing property value")]
         [SerializeField]
@@ -70,14 +76,6 @@ namespace GameJam.Items
         #endregion
 
         #region Custom methods
-        private void SetAnimTrigger(Animator animator, AnimInfo animInfo)
-        {
-            if (animInfo.TriggerType == TriggerTypes.Bool)
-                animator.SetBool(animInfo.TriggerValueName, animInfo.TriggerValue);
-            else
-                animator.SetTrigger(animInfo.TriggerValueName);
-        }
-
         private void ResetTableFor(InteractionObjectInfo interactionObject)
         {
             if (_objectsToInteract.ContainsValue(interactionObject))
@@ -86,8 +84,8 @@ namespace GameJam.Items
 
         private IEnumerator TakeCup(InteractionObjectInfo interactionObject)
         {
-            interactionObject.objectInfo.DisableMovements();
             interactionObject.objectInfo.DisableInteractions();
+            interactionObject.objectInfo.DisableMovements();
 
             interactionObject.isInteracting = true;
 
@@ -99,25 +97,44 @@ namespace GameJam.Items
             while (!Mover.IsAtTarget(interactionObject.gameObject))
                 yield return new WaitForFixedUpdate();
 
+            if(interactionObject.gameObject.transform.localScale.x > 0f)
+                interactionObject.gameObject.transform.localScale = new Vector3(
+                    -interactionObject.gameObject.transform.localScale.x,
+                    interactionObject.gameObject.transform.localScale.y,
+                    interactionObject.gameObject.transform.localScale.z
+                    );
+
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.TakeCoffee);
 
             interactionObject.objectInfo.DisableInteractions();
 
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
+            _cup.SetActive(false);
             yield return new WaitForSeconds(animInfo.AnimationLength);
 
             interactionObject.objectInfo.EnableInteractions();
+
+            if(_autoDrinkEnabled)
+                StartCoroutine(StartDrinkAnimation(interactionObject));
         }
 
-        //need ienumerator?
-        private void StartDrinkAnimation(InteractionObjectInfo interactionObject)
+        public void Drink(GameObject drinker)
         {
-            if (interactionObject.isLeaving)
+            if (!_objectsToInteract.ContainsKey(drinker))
             {
-                CancelInvoke(nameof(StartDrinkAnimation));
-                return;
+                _objectsToInteract.Add(drinker, new InteractionObjectInfo(
+                            drinker.GetComponent<PersonObject>(),
+                            drinker != _player || _dialogueText == null));
             }
-            StartCoroutine(Drink(interactionObject));
+            StartCoroutine(StartDrinkAnimation(_objectsToInteract[drinker]));
+        }
+
+        private IEnumerator StartDrinkAnimation(InteractionObjectInfo interactionObject)
+        {
+            yield return new WaitForSeconds(_drinkDelay);
+
+            if (!interactionObject.isLeaving)
+                StartCoroutine(Drink(interactionObject));
         }
 
         private IEnumerator Drink(InteractionObjectInfo interactionObject)
@@ -142,6 +159,7 @@ namespace GameJam.Items
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
 
             yield return new WaitForSeconds(animInfo.AnimationLength);
+            _cup.SetActive(true);
 
             ResetTableFor(interactionObject);
 

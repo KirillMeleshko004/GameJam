@@ -33,6 +33,10 @@ namespace GameJam.Items
         [Header("Is last scene")]
         [SerializeField]
         private bool _isDayX = false;
+
+
+        [SerializeField]
+        private Vector3 _offset = Vector3.zero;
         #endregion
 
         #region Properties
@@ -55,6 +59,10 @@ namespace GameJam.Items
         #endregion
 
         #region Custom methods
+        private void ResetSofa()
+        {
+            _objectsToInteract.Clear();
+        }
         private IEnumerator StandUp(InteractionObjectInfo interactionObject)
         {
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.StandUpFromSofa);
@@ -66,6 +74,7 @@ namespace GameJam.Items
 
             interactionObject.objectInfo.EnableInteractions();
             interactionObject.objectInfo.EnableMovements();
+            ResetSofa();
         }
         private IEnumerator SitDown(InteractionObjectInfo interactionObject)
         {   
@@ -77,9 +86,9 @@ namespace GameJam.Items
             Mover.AddMovement(interactionObject.objectInfo.gameObject, 
                 new Vector3(
                     transform.position.x,
-                    interactionObject.objectInfo.PersonTransform.position.y, 
+                    interactionObject.objectInfo.PersonTransform.position.y,
                     interactionObject.objectInfo.PersonTransform.position.z
-                    )
+                    ) + _offset
                 );
 
             while(!Mover.IsAtTarget(interactionObject.objectInfo.gameObject))
@@ -127,7 +136,7 @@ namespace GameJam.Items
         {
             if(!_objectsToInteract.ContainsKey(sender))
                 _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>(), 
-                    _dialogueText == null));
+                    _dialogueText == null || _dialogue.IsCompleted));
 
 
             if (!_objectsToInteract[sender].isSitting)
@@ -154,7 +163,7 @@ namespace GameJam.Items
 
             if (!_objectsToInteract.ContainsKey(_player))
                 _objectsToInteract.Add(_player, new InteractionObjectInfo(_player.GetComponent<PersonObject>(), 
-                    _dialogueText == null));
+                    _dialogueText == null || _dialogue.IsCompleted));
 
             base._hintDisplay.SetActive(true);
             if (!_objectsToInteract[_player].isSitting)
