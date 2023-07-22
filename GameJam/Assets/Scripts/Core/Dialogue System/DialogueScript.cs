@@ -1,5 +1,6 @@
 using GameJam.Core.Dialogue;
 using GameJam.Inputs;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace GameJam.Items
 {
     public class DialogueScript : MonoBehaviour
     {
+        
+
         #region Variables
         [SerializeField]
         private float _nextCharDelay = 0.01f;
@@ -27,6 +30,9 @@ namespace GameJam.Items
         private TextMeshPro _currentActiveText = null;
 
         private List<DialogueLine> DialogueLines { get; } = new();
+
+        private bool _suspensionRequested = false;
+        private float suspensionTime = 0f;
         #endregion
 
         #region Properties
@@ -112,26 +118,43 @@ namespace GameJam.Items
 
         public void ShowNextSentence()
         {
-            if(IsTypingNow)
+            StartCoroutine(ShowNextSentecneAsCourotine());
+        }
+
+        private IEnumerator ShowNextSentecneAsCourotine()
+        {
+            if(_suspensionRequested)
+            {
+                StartCoroutine(SuspendOnTime(suspensionTime));
+                while (IsSuspended)
+                    yield return new WaitForFixedUpdate();
+            }
+
+            if (IsTypingNow)
             {
                 SkipTextAnimation();
-                return;
+                yield break;
             }
             if (_currentLineInd == DialogueLines.Count)
             {
                 IsCompleted = true;
-                return;
+                yield break;
             }
 
-            if(_currentActiveText != null)
+
+            SwitchActiveDisplay();
+            CurrentLine = DialogueLines[_currentLineInd];
+
+            StartCoroutine(WriteLine(DialogueLines[_currentLineInd].Line, _currentActiveText));
+        }
+        private void SwitchActiveDisplay()
+        {
+            if (_currentActiveText != null)
                 SetDialogueWindowActive(false, _currentActiveText);
-            
+
             _currentActiveText = _tmrpoForPerson[DialogueLines[_currentLineInd].Person];
             ClearText(_currentActiveText);
             SetDialogueWindowActive(true, _currentActiveText);
-
-            CurrentLine = DialogueLines[_currentLineInd];
-            StartCoroutine(WriteLine(DialogueLines[_currentLineInd].Line, _currentActiveText));
         }
 
         private IEnumerator WriteLine(string line, TextMeshPro tmpro)
@@ -150,19 +173,18 @@ namespace GameJam.Items
             IsCompleted = CheckCompletion();
         }
 
-        public void SuspendDialogue()
+        public void RequestDialogueSuspension(float time)
+        {
+            _suspensionRequested = true;
+            suspensionTime = time;
+        }
+        private IEnumerator SuspendOnTime(float time)
         {
             IsSuspended = true;
-        }
-        public void SuspendDialogue(float time)
-        {
-            StartCoroutine(SuspenOnTime(time));
-        }
-        private IEnumerator SuspenOnTime(float time)
-        {
-            IsSuspended = true;
+            _currentActiveText.transform.parent.parent.gameObject.SetActive(false);
             yield return new WaitForSeconds(time);
             IsSuspended = false;
+            _suspensionRequested = false;
         }
         public void SkipTextAnimation()
         {
@@ -200,6 +222,8 @@ namespace GameJam.Items
                 DialogueLines.Add(new DialogueLine(personLinePair[0], personLinePair[1]));
             }
         }
+
+        [Serializable]
         public sealed class DialogueLine
         {
             [SerializeField]

@@ -35,6 +35,10 @@ namespace GameJam.Items
         [SerializeField]
         private string _animatorClosePcTriggerName = "closePc";
 
+        [SerializeField]
+        private Vector3 _offset = Vector3.zero;
+
+
         private GameObject _excelGameInstance;
         #endregion
 
@@ -92,10 +96,17 @@ namespace GameJam.Items
                     transform.position.x,
                     interactionObject.objectInfo.PersonTransform.position.y,
                     interactionObject.objectInfo.PersonTransform.position.z
-                    )
+                    ) + _offset
                 );
             while (!Mover.IsAtTarget(interactionObject.objectInfo.gameObject))
                 yield return new WaitForFixedUpdate();
+
+            if (interactionObject.objectInfo.gameObject.transform.localScale.x < 0f)
+                interactionObject.objectInfo.gameObject.transform.localScale = new Vector3(
+                    -interactionObject.objectInfo.gameObject.transform.localScale.x,
+                    interactionObject.objectInfo.gameObject.transform.localScale.y,
+                    interactionObject.objectInfo.gameObject.transform.localScale.z
+                    );
 
             //Play sit down animation
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.SitDownToChair);

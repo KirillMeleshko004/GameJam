@@ -39,7 +39,7 @@ namespace GameJam.Items
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
 
-
+        [Header("Actions on stand up. Will be done sequentially")]
         [SerializeField]
         private List<UnityEvent> _actionHelperList = new List<UnityEvent>();
 

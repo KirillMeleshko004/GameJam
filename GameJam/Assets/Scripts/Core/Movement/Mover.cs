@@ -91,6 +91,8 @@ namespace GameJam.Core.Movement
 
         public static bool IsAtTarget(GameObject obj)
         {
+            if (!_history.ContainsKey(obj)) return false;
+
             bool isAtTarget = _history[obj].TargetReached;
             if (!isAtTarget) return false;
             else

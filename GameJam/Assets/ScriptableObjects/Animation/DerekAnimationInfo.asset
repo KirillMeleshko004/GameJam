@@ -28,3 +28,8 @@ MonoBehaviour:
     _triggerValueName: isSittingOnChair
     _triggerValue: 1
     _animationLength: 1.2
+  - _animationType: 8
+    _triggerType: 0
+    _triggerValueName: drinkCoffee
+    _triggerValue: 1
+    _animationLength: 1.934

@@ -5,6 +5,7 @@ using GameJam.ScriptableObjects.Animation;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace GameJam.Items
 {
@@ -46,6 +47,9 @@ namespace GameJam.Items
         private string _startDialogueHint = "Press E to start dialogue";
         [SerializeField]
         private string _continueDialogueHint = "Press E to continue dialogue";
+
+        [SerializeField]
+        private UnityEvent OnTableExit = null;
         #endregion
 
         #region Properties
@@ -87,8 +91,6 @@ namespace GameJam.Items
             interactionObject.objectInfo.DisableInteractions();
             interactionObject.objectInfo.DisableMovements();
 
-            interactionObject.isInteracting = true;
-
 
             Mover.AddMovement(interactionObject.gameObject, new Vector3(transform.position.x,
                 interactionObject.gameObject.transform.position.y,
@@ -106,11 +108,13 @@ namespace GameJam.Items
 
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.TakeCoffee);
 
-            interactionObject.objectInfo.DisableInteractions();
+            //interactionObject.objectInfo.DisableInteractions();
 
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
             _cup.SetActive(false);
             yield return new WaitForSeconds(animInfo.AnimationLength);
+
+            interactionObject.isInteracting = true;
 
             interactionObject.objectInfo.EnableInteractions();
 
@@ -126,7 +130,7 @@ namespace GameJam.Items
                             drinker.GetComponent<PersonObject>(),
                             drinker != _player || _dialogueText == null));
             }
-            StartCoroutine(StartDrinkAnimation(_objectsToInteract[drinker]));
+            StartCoroutine(Drink(_objectsToInteract[drinker]));
         }
 
         private IEnumerator StartDrinkAnimation(InteractionObjectInfo interactionObject)
@@ -150,6 +154,13 @@ namespace GameJam.Items
 
         private IEnumerator LeaveTheTable(InteractionObjectInfo interactionObject)
         {
+            OnTableExit?.Invoke();
+            if (_cup == null)
+            {
+                interactionObject.objectInfo.EnableMovements();
+                yield break;
+            }
+
             interactionObject.isLeaving = true;
             interactionObject.objectInfo.DisableInteractions();
 
@@ -176,12 +187,41 @@ namespace GameJam.Items
             }
             else if (!_dialogue.IsDisplaying)
             {
-                _dialogue.StartDialogue(_dialogueText);
+                StartCoroutine(StartDialogue(_objectsToInteract[_player]));
             }
             else
             {
                 _dialogue.ShowNextSentence();   
             }
+        }
+
+        private IEnumerator StartDialogue(InteractionObjectInfo interactionObject)
+        {
+            if(_cup == null)
+            {
+                interactionObject.objectInfo.DisableInteractions();
+                interactionObject.objectInfo.DisableMovements();
+
+                Mover.AddMovement(interactionObject.gameObject, new Vector3(transform.position.x,
+                    interactionObject.gameObject.transform.position.y,
+                    interactionObject.gameObject.transform.position.z) + _positionOffset);
+
+                while (!Mover.IsAtTarget(interactionObject.gameObject))
+                    yield return new WaitForFixedUpdate();
+
+                if (interactionObject.gameObject.transform.localScale.x < 0f)
+                    interactionObject.gameObject.transform.localScale = new Vector3(
+                        -interactionObject.gameObject.transform.localScale.x,
+                        interactionObject.gameObject.transform.localScale.y,
+                        interactionObject.gameObject.transform.localScale.z
+                        );
+
+                interactionObject.isInteracting = true;
+
+                interactionObject.objectInfo.EnableInteractions();
+            }
+
+            _dialogue.StartDialogue(_dialogueText);
         }
         #endregion
 
@@ -193,10 +233,10 @@ namespace GameJam.Items
             {
                 _objectsToInteract.Add(sender, new InteractionObjectInfo(
                             sender.GetComponent<PersonObject>(),
-                            sender != _player || _dialogueText == null));
+                            sender != _player || _dialogueText == null || _dialogue.IsCompleted));
             }
 
-            if (!_objectsToInteract[sender].isInteracting)
+            if (!_objectsToInteract[sender].isInteracting && _cup != null)
                 StartCoroutine(TakeCup(_objectsToInteract[sender]));
             else if (_objectsToInteract[sender].canLeave)
                 StartCoroutine(LeaveTheTable(_objectsToInteract[sender]));
@@ -212,7 +252,7 @@ namespace GameJam.Items
 
             if (!_objectsToInteract.ContainsKey(_player))
                 _objectsToInteract.Add(_player, new InteractionObjectInfo(_player.GetComponent<PersonObject>(),
-                     _dialogueText == null));
+                     _dialogueText == null || _dialogue.IsCompleted));
 
             base._hintDisplay.SetActive(true);
             if (!_objectsToInteract[_player].isInteracting)

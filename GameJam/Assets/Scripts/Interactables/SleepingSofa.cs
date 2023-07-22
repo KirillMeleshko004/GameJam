@@ -3,7 +3,6 @@ using GameJam.Core.Movement;
 using GameJam.Core.SceneChangers;
 using GameJam.Player;
 using GameJam.ScriptableObjects.Animation;
-using GameJam.ScriptableObjects.Dialogue;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;

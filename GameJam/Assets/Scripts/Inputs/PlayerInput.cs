@@ -1,6 +1,5 @@
-using GameJam.Core.Controllers;
+using GameJam.Core.SceneControllers;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace GameJam.Inputs
 {
