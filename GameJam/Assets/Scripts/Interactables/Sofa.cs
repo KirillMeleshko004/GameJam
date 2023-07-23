@@ -82,8 +82,12 @@ namespace GameJam.Items
             interactionObject.objectInfo.EnableInteractions();
             interactionObject.objectInfo.EnableMovements();
             ResetSofa();
-            _actionsOnStandUp.TryDequeue(out UnityEvent action);
-            action?.Invoke();
+
+            while(_actionsOnStandUp.Count > 0)
+            {
+                _actionsOnStandUp.TryDequeue(out UnityEvent action);
+                action?.Invoke();
+            }
         }
         private IEnumerator SitDown(InteractionObjectInfo interactionObject)
         {   

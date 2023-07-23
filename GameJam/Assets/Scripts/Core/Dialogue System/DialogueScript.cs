@@ -11,7 +11,7 @@ namespace GameJam.Items
 {
     public class DialogueScript : MonoBehaviour
     {
-        
+        public event Action<bool> OnSuspensionChange;
 
         #region Variables
         [SerializeField]
@@ -32,6 +32,7 @@ namespace GameJam.Items
         private List<DialogueLine> DialogueLines { get; } = new();
 
         private bool _suspensionRequested = false;
+        private bool _isSuspended = false;
         private float suspensionTime = 0f;
         #endregion
 
@@ -40,7 +41,13 @@ namespace GameJam.Items
         public bool IsDisplaying { get; private set; } = false;
         public bool IsTypingNow { get; private set; } = false;
 
-        public bool IsSuspended { get; private set; } = false;
+        public bool IsSuspended { get { return _isSuspended; }
+            private set
+            {
+                _isSuspended = value;
+                OnSuspensionChange?.Invoke(value);
+            }
+        }
 
         public DialogueLine CurrentLine { get; private set; }
         #endregion
@@ -63,9 +70,14 @@ namespace GameJam.Items
 
         public void FinishDialogue()
         {
-            foreach(var kvp in _tmrpoForPerson)
-                GameObject.Destroy(kvp.Value.transform.parent.parent.gameObject);
+            DestroyDialogueWindows();
             ResetParameters();
+        }
+
+        private void DestroyDialogueWindows()
+        {
+            foreach (var kvp in _tmrpoForPerson)
+                GameObject.Destroy(kvp.Value.transform.parent.parent.gameObject);
         }
 
         private void ResetParameters()
@@ -97,6 +109,8 @@ namespace GameJam.Items
         }
         private void SetDialogueWindowScale(GameObject dialogueWindow)
         {
+            dialogueWindow.transform.localScale = Vector3.one;
+
             float xProportion = 1f;
             float yProportion = 1f;
             float zProportion = 1f;
@@ -183,6 +197,12 @@ namespace GameJam.Items
             IsSuspended = true;
             _currentActiveText.transform.parent.parent.gameObject.SetActive(false);
             yield return new WaitForSeconds(time);
+
+            foreach (var kvp in _tmrpoForPerson)
+            {
+                SetDialogueWindowScale(kvp.Value.transform.parent.parent.gameObject);
+            }
+
             IsSuspended = false;
             _suspensionRequested = false;
         }

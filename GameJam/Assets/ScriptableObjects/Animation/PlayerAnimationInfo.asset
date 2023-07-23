@@ -68,3 +68,8 @@ MonoBehaviour:
     _triggerValueName: sleep
     _triggerValue: 1
     _animationLength: 1.866
+  - _animationType: 11
+    _triggerType: 1
+    _triggerValueName: wakeUp
+    _triggerValue: 1
+    _animationLength: 1.866

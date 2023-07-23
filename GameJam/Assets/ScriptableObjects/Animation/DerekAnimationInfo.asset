@@ -33,3 +33,8 @@ MonoBehaviour:
     _triggerValueName: drinkCoffee
     _triggerValue: 1
     _animationLength: 1.934
+  - _animationType: 9
+    _triggerType: 0
+    _triggerValueName: leaveTable
+    _triggerValue: 1
+    _animationLength: 1.1

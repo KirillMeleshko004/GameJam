@@ -53,7 +53,7 @@ namespace GameJam.Player
         }
 
 
-        void Start()
+        void Awake()
         {
             PersonRb = GetComponent<Rigidbody2D>();
             PersonAnim = GetComponent<Animator>();

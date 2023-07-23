@@ -15,7 +15,6 @@ namespace GameJam.Core.SceneControllers
             if (_objectsToEnable.Count > 0)
                 _objectsToEnable.Dequeue()?.SetActive(true);
         }
-        //comment
         public void OnBeforeSerialize()
         {
             //No need

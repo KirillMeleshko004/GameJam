@@ -6,6 +6,7 @@ using GameJam.ScriptableObjects.Animation;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace GameJam.Items
 {
@@ -37,6 +38,9 @@ namespace GameJam.Items
 
         [SerializeField]
         private Vector3 _offset = Vector3.zero;
+
+        [SerializeField]
+        private UnityEvent OnWorkCompleted;
 
 
         private GameObject _excelGameInstance;
@@ -120,18 +124,38 @@ namespace GameJam.Items
 
             StartExcelGame();
         }
-        private void StartWorkForNpc(InteractionObjectInfo interactionObject)
+        private IEnumerator StartWorkForNpc(InteractionObjectInfo interactionObject)
         {
+            Mover.AddMovement(interactionObject.objectInfo.gameObject,
+                new Vector3(
+                    transform.position.x,
+                    interactionObject.objectInfo.PersonTransform.position.y,
+                    interactionObject.objectInfo.PersonTransform.position.z
+                    ) + _offset
+                );
+            while (!Mover.IsAtTarget(interactionObject.objectInfo.gameObject))
+                yield return new WaitForFixedUpdate();
+
+            if (interactionObject.objectInfo.gameObject.transform.localScale.x < 0f)
+                interactionObject.objectInfo.gameObject.transform.localScale = new Vector3(
+                    -interactionObject.objectInfo.gameObject.transform.localScale.x,
+                    interactionObject.objectInfo.gameObject.transform.localScale.y,
+                    interactionObject.objectInfo.gameObject.transform.localScale.z
+                    );
+
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.SitDownToChair);
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
         }
         private void StartWork(InteractionObjectInfo interactionObject)
         {
             if (interactionObject.isPlayer) StartCoroutine(StartWorkForPlayer(interactionObject));
-            else StartWorkForNpc(interactionObject);
+            else StartCoroutine(StartWorkForNpc(interactionObject));
         }
         private IEnumerator FinishWorkForPlayer(InteractionObjectInfo interactionObject)
         {
+            OnWorkCompleted?.Invoke();
+
+
             interactionObject.objectInfo.DisableMovements();
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
 
@@ -150,6 +174,7 @@ namespace GameJam.Items
 
             ResetPc();
             interactionObject.objectInfo.EnableMovements();
+
         }
         private void FinishWorkForNpc(InteractionObjectInfo interactionObject)
         {

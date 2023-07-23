@@ -18,6 +18,8 @@ namespace GameJam.Items
 
         [SerializeField]
         private GameObject _cup;
+        [SerializeField]
+        private GameObject _npcCup;
 
         [SerializeField]
         private bool _autoDrinkEnabled = true;
@@ -29,15 +31,14 @@ namespace GameJam.Items
         private TextAsset _dialogueText = null;
 
         [SerializeField]
-        private Animator _tableAnim;
-
-        [SerializeField]
         private float _drinkDelay = 2f;
 
         [Header("Postition offset relative to table to position objects. Can be change by changing property value")]
         [SerializeField]
         private Vector3 _positionOffset = Vector3.zero;
-        
+        [SerializeField]
+        private Vector3 _npcPositionOffset = Vector3.zero;
+
         [Header("Messages, that show up as a hint")]
         [SerializeField]
         private string _takeCoffeeHint = "Press E to take coffee";
@@ -79,7 +80,21 @@ namespace GameJam.Items
         }
         #endregion
 
+        #region Built-in methods
+        private void Start()
+        {
+            if(_dialogue != null)
+                _dialogue.OnSuspensionChange += OnDialogueSuspensionChanged;
+        }
+        #endregion
+
         #region Custom methods
+        private void OnDialogueSuspensionChanged(bool isSuspended)
+        {
+            if (isSuspended) _player.GetComponent<PersonObject>().DisableInteractions();
+            else _player.GetComponent<PersonObject>().EnableInteractions();
+        }
+
         private void ResetTableFor(InteractionObjectInfo interactionObject)
         {
             if (_objectsToInteract.ContainsValue(interactionObject))
@@ -94,12 +109,15 @@ namespace GameJam.Items
 
             Mover.AddMovement(interactionObject.gameObject, new Vector3(transform.position.x,
                 interactionObject.gameObject.transform.position.y,
-                interactionObject.gameObject.transform.position.z) + _positionOffset);
+                interactionObject.gameObject.transform.position.z) + 
+                (interactionObject.gameObject == _player ? _positionOffset : _npcPositionOffset));
 
             while (!Mover.IsAtTarget(interactionObject.gameObject))
                 yield return new WaitForFixedUpdate();
 
-            if(interactionObject.gameObject.transform.localScale.x > 0f)
+            
+            if(interactionObject.gameObject == _player && interactionObject.gameObject.transform.localScale.x < 0f ||
+                interactionObject.gameObject != _player && interactionObject.gameObject.transform.localScale.x > 0f)
                 interactionObject.gameObject.transform.localScale = new Vector3(
                     -interactionObject.gameObject.transform.localScale.x,
                     interactionObject.gameObject.transform.localScale.y,
@@ -108,10 +126,11 @@ namespace GameJam.Items
 
             AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.TakeCoffee);
 
-            //interactionObject.objectInfo.DisableInteractions();
-
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
-            _cup.SetActive(false);
+            if (interactionObject.gameObject == _player)
+                _cup.SetActive(false);
+            else
+                _npcCup.SetActive(false);
             yield return new WaitForSeconds(animInfo.AnimationLength);
 
             interactionObject.isInteracting = true;
@@ -155,7 +174,8 @@ namespace GameJam.Items
         private IEnumerator LeaveTheTable(InteractionObjectInfo interactionObject)
         {
             OnTableExit?.Invoke();
-            if (_cup == null)
+            if (interactionObject.gameObject == _player && _cup == null ||
+                interactionObject.gameObject != _player && _npcCup == null)
             {
                 interactionObject.objectInfo.EnableMovements();
                 yield break;
@@ -170,7 +190,12 @@ namespace GameJam.Items
             interactionObject.objectInfo.SetAnimTrigger(animInfo);
 
             yield return new WaitForSeconds(animInfo.AnimationLength);
-            _cup.SetActive(true);
+
+
+            if (interactionObject.gameObject == _player)
+                _cup.SetActive(true);
+            else
+                _npcCup.SetActive(true);
 
             ResetTableFor(interactionObject);
 
@@ -236,7 +261,9 @@ namespace GameJam.Items
                             sender != _player || _dialogueText == null || _dialogue.IsCompleted));
             }
 
-            if (!_objectsToInteract[sender].isInteracting && _cup != null)
+            bool hasCup = sender == _player && _cup != null || sender != _player && _npcCup != null;
+
+            if (!_objectsToInteract[sender].isInteracting && hasCup)
                 StartCoroutine(TakeCup(_objectsToInteract[sender]));
             else if (_objectsToInteract[sender].canLeave)
                 StartCoroutine(LeaveTheTable(_objectsToInteract[sender]));

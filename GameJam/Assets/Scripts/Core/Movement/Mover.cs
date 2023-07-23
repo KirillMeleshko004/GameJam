@@ -20,6 +20,10 @@ namespace GameJam.Core.Movement
 
         #region Built-in methods
 
+        private void Start()
+        {
+            _objectsToMove.Clear();
+        }
         void FixedUpdate()
         {
             if (_objectsToMove.Count != 0)
