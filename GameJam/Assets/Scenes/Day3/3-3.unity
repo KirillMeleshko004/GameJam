@@ -737,6 +737,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 913904019}
     - target: {fileID: 4422645935470956343, guid: af78572a6e980f14f9a9dc910f80f01b, type: 3}
+      propertyPath: _excelGamePrefab
+      value: 
+      objectReference: {fileID: 8820045813642558393, guid: 3008da4f09c9ccc46a6b7b7fb69c06e5, type: 3}
+    - target: {fileID: 4422645935470956343, guid: af78572a6e980f14f9a9dc910f80f01b, type: 3}
       propertyPath: OnWorkCompleted.m_PersistentCalls.m_Calls.Array.size
       value: 2
       objectReference: {fileID: 0}

@@ -854,6 +854,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5599138873578883170, guid: f1dc7e1e2593db64b8cc34053b2e1404, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6051798870305694472, guid: f1dc7e1e2593db64b8cc34053b2e1404, type: 3}
       propertyPath: m_LocalScale.x
       value: 1
@@ -1053,6 +1057,10 @@ PrefabInstance:
       propertyPath: _hintDisplay
       value: 
       objectReference: {fileID: 1891035381}
+    - target: {fileID: 4422645935470956343, guid: af78572a6e980f14f9a9dc910f80f01b, type: 3}
+      propertyPath: _excelGamePrefab
+      value: 
+      objectReference: {fileID: 8820045813642558393, guid: ddcc611a35307b24699768b0cd00142d, type: 3}
     - target: {fileID: 4422645935470956343, guid: af78572a6e980f14f9a9dc910f80f01b, type: 3}
       propertyPath: OnWorkCompleted.m_PersistentCalls.m_Calls.Array.size
       value: 3
@@ -2866,15 +2874,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1888428786397863169, guid: 950990dcd2a00194797d710e57fad185, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1888428786397863169, guid: 950990dcd2a00194797d710e57fad185, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1888428786397863169, guid: 950990dcd2a00194797d710e57fad185, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 1888428786397863169, guid: 950990dcd2a00194797d710e57fad185, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2927,6 +2935,10 @@ PrefabInstance:
     - target: {fileID: 1888428786397863183, guid: 950990dcd2a00194797d710e57fad185, type: 3}
       propertyPath: m_Name
       value: DerekPrefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 1925832905500273543, guid: 950990dcd2a00194797d710e57fad185, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3825266750780806955, guid: 950990dcd2a00194797d710e57fad185, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2988,6 +3000,10 @@ PrefabInstance:
     - target: {fileID: 5702558264552539887, guid: 08741e0bf35db5e4c9fcb5abd0a464b7, type: 3}
       propertyPath: m_Name
       value: Anna
+      objectReference: {fileID: 0}
+    - target: {fileID: 6487105945291332751, guid: 08741e0bf35db5e4c9fcb5abd0a464b7, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 08741e0bf35db5e4c9fcb5abd0a464b7, type: 3}

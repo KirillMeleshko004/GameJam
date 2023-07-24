@@ -1,0 +1,4 @@
+﻿|1 |       1234 Main Street, Lincoln, NE 68509       |         120$|
+|2  |      8910 Elmore Lane, Greensboro, NC 08322   |             75$|
+|3 |       1201 Hawk Lane, New Jersey, NJ 10342       |         50$|
+|4  |      185 West 74th Street, New York, NY 10002    |            315$|
