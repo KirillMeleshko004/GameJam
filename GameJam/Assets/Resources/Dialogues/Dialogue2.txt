@@ -1,0 +1,9 @@
+﻿Oper1 | Bla bla bla
+Oper2 | Bla bla bla Bla bla bla Bla bla bla
+Oper1 | Bla bla bla Bla bla bla
+Oper2 | Bla bla bla Bla bla bla Bla bla bla Bla bla bla Bla bla bla Bla bla bla
+Oper1 | Bla bla bla Bla bla bla Bla bla bla
+Oper2 | Bla bla bla Bla bla bla Bla bla bla
+Oper1 | Bla bla bla Bla bla bla
+Oper2 | Bla bla bla Bla bla bla Bla bla bla Bla bla bla Bla bla bla Bla bla bla
+Oper1 | Bla bla bla Bla bla bla Bla bla bla

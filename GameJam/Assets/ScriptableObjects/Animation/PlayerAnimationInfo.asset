@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55ba490afb2e2ff43b6482bb074e1ce3, type: 3}
+  m_Name: PlayerAnimationInfo
+  m_EditorClassIdentifier: 
+  _animations:
+  - _animationType: 0
+    _triggerType: 1
+    _triggerValueName: isMoving
+    _triggerValue: 0
+    _animationLength: 1.834
+  - _animationType: 1
+    _triggerType: 1
+    _triggerValueName: isMoving
+    _triggerValue: 1
+    _animationLength: 1.106
+  - _animationType: 2
+    _triggerType: 1
+    _triggerValueName: isSittingOnSofa
+    _triggerValue: 0
+    _animationLength: 1.134
+  - _animationType: 3
+    _triggerType: 1
+    _triggerValueName: isSittingOnSofa
+    _triggerValue: 1
+    _animationLength: 1.134
+  - _animationType: 4
+    _triggerType: 1
+    _triggerValueName: isSittingOnChair
+    _triggerValue: 0
+    _animationLength: 1.2
+  - _animationType: 5
+    _triggerType: 1
+    _triggerValueName: isSittingOnChair
+    _triggerValue: 1
+    _animationLength: 1.2
+  - _animationType: 6
+    _triggerType: 1
+    _triggerValueName: isShooting
+    _triggerValue: 1
+    _animationLength: 1.866
+  - _animationType: 7
+    _triggerType: 0
+    _triggerValueName: takeCoffee
+    _triggerValue: 1
+    _animationLength: 1.1
+  - _animationType: 8
+    _triggerType: 0
+    _triggerValueName: drinkCoffee
+    _triggerValue: 1
+    _animationLength: 1.934
+  - _animationType: 9
+    _triggerType: 0
+    _triggerValueName: leaveTable
+    _triggerValue: 1
+    _animationLength: 1.1
+  - _animationType: 10
+    _triggerType: 0
+    _triggerValueName: sleep
+    _triggerValue: 1
+    _animationLength: 1.866
+  - _animationType: 11
+    _triggerType: 1
+    _triggerValueName: wakeUp
+    _triggerValue: 1
+    _animationLength: 1.866

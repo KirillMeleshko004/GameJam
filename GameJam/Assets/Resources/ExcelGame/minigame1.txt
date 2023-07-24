@@ -1,0 +1,6 @@
+﻿| 1 | 89 Boston St, Boston, MA 02130 |  130$ |
+| 2 | 241 Perkins St, Boston, MA 02130 | 45$ |
+| 3 | 34 Marshfield St, New York, MA 02188 | 205$ |
+| 4 | 285 Beacon St, Cambridge, MA 02334 | 315$ |
+| 5 | 13 Tappan St, Brookline, MA 02445 | 145$ |
+| 6 | 276 Corey Rd, Boston, MA 02135 | 73$ |

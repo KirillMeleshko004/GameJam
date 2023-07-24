@@ -1,0 +1,3 @@
+﻿|1   |     285 Beacon St, Boston, MA02139     |   55$|
+|2   |     12 W Broadway, Boston, MA 02127    |    115$|
+|3    |    185 West 74th Street, New York, NY 10002     |    205$|

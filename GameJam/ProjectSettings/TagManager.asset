@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Interactable
+  - Scene manager
   layers:
   - Default
   - TransparentFX
@@ -38,6 +40,30 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Sky
+    uniqueID: 3739232761
+    locked: 0
+  - name: City
+    uniqueID: 2238741315
+    locked: 0
+  - name: Office
+    uniqueID: 136906379
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Third Layer
+    uniqueID: 1939469849
+    locked: 0
+  - name: Objects Layer
+    uniqueID: 1062165989
+    locked: 0
+  - name: NPC Layer
+    uniqueID: 1713160529
+    locked: 0
+  - name: Player Layer
+    uniqueID: 4191401397
+    locked: 0
+  - name: Top Layer
+    uniqueID: 3558982335
     locked: 0
