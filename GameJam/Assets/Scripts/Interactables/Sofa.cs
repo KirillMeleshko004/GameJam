@@ -1,3 +1,4 @@
+using GameJam.Core.Dialogue;
 using GameJam.Core.Interactions;
 using GameJam.Core.Movement;
 using GameJam.Player;
@@ -131,10 +132,11 @@ namespace GameJam.Items
 
         private void HandleDialogue()
         {
-            if (_dialogue.IsCompleted)
+            if (_dialogue.IsDialogueComleted)
             {
                 _dialogue.FinishDialogue();
                 _objectsToInteract[_player].canLeave = true;
+                ShowInteractionHint();
             }
             else
             {
@@ -149,7 +151,7 @@ namespace GameJam.Items
         {
             if(!_objectsToInteract.ContainsKey(sender))
                 _objectsToInteract.Add(sender, new InteractionObjectInfo(sender.GetComponent<PersonObject>(), 
-                    _dialogueText == null || _dialogue.IsCompleted));
+                    _dialogueText == null || _dialogue.IsDialogueComleted));
 
 
             if (!_objectsToInteract[sender].isSitting)
@@ -166,8 +168,6 @@ namespace GameJam.Items
             else
                 StartCoroutine(StandUp(_objectsToInteract[sender]));
 
-
-            ShowInteractionHint();
         }
 
         public override void ShowInteractionHint()
@@ -176,7 +176,7 @@ namespace GameJam.Items
 
             if (!_objectsToInteract.ContainsKey(_player))
                 _objectsToInteract.Add(_player, new InteractionObjectInfo(_player.GetComponent<PersonObject>(), 
-                    _dialogueText == null || _dialogue.IsCompleted));
+                    _dialogueText == null || _dialogue.IsDialogueComleted));
 
             base._hintDisplay.SetActive(true);
             if (!_objectsToInteract[_player].isSitting)
@@ -200,14 +200,14 @@ namespace GameJam.Items
         #region ISerializationCallbackReciever implementation
         public void OnBeforeSerialize()
         {
-            _actionsOnStandUp.Clear();
-            foreach(var act in _actionHelperList)
-                _actionsOnStandUp.Enqueue(act);
+            //No need
         }
 
         public void OnAfterDeserialize()
         {
-            //No need
+            _actionsOnStandUp.Clear();
+            foreach (var act in _actionHelperList)
+                _actionsOnStandUp.Enqueue(act);
         }
         #endregion
     }

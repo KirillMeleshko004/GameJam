@@ -44,12 +44,12 @@ namespace GameJam.Player
         public void DisableInteractions()
         {
             if (PlayerActionController != null)
-                PlayerActionController.AreInteractionsDisabled = true;
+                PlayerActionController.DisableInteractions();
         }
         public void EnableInteractions()
         {
             if (PlayerActionController != null)
-                PlayerActionController.AreInteractionsDisabled = false;
+                PlayerActionController.EnableInteractions();
         }
 
 

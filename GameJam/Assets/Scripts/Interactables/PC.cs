@@ -42,6 +42,9 @@ namespace GameJam.Items
         [SerializeField]
         private UnityEvent OnWorkCompleted;
 
+        [SerializeField]
+        private UnityEvent OnWorkStart;
+
 
         private GameObject _excelGameInstance;
         #endregion
@@ -121,6 +124,8 @@ namespace GameJam.Items
             //Play pc fade in animation (default animation on _pcDisplay active
             _pcDisplay.SetActive(true);
             yield return new WaitForSeconds(_startUpAnimTime / 2f);
+
+            OnWorkStart?.Invoke();
 
             StartExcelGame();
         }

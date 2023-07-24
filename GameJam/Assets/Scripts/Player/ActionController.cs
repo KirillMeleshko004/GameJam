@@ -1,7 +1,6 @@
 using GameJam.Core.Interactions;
 using GameJam.Inputs;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace GameJam.Player
@@ -13,23 +12,10 @@ namespace GameJam.Player
         #region Variables
         private PlayerInput _playerInput;
 
-        private Queue<IInteractable> _interactables = new();
+        private IInteractable _objectToInteract = null;
       
-
         private bool _areInteractionsDisabled = false;
-        private bool _prevState = false;
         #endregion
-
-        #region Properties
-        public bool AreInteractionsDisabled { get { return _areInteractionsDisabled; }
-            set
-            {
-                gameObject.GetComponent<Rigidbody2D>().WakeUp();
-                _areInteractionsDisabled = value;
-            }
-        }
-        #endregion
-
 
         #region Built-in methods
         private void Start()
@@ -39,35 +25,15 @@ namespace GameJam.Player
 
         private void LateUpdate()
         {
-            HandleInteractions();
+            if (!_areInteractionsDisabled) HandleInteractions();
         }
 
         private void OnTriggerEnter2D(Collider2D collision)
         {
             if (collision.transform.root.CompareTag("Interactable"))
             {
-                if (AreInteractionsDisabled) return;
-
-                AddNewInteractable(collision.transform.root.GetComponent<IInteractable>());     
-            }
-        }
-
-        private void OnTriggerStay2D(Collider2D collision)
-        {
-            if (AreInteractionsDisabled == _prevState) return;
-            _prevState = AreInteractionsDisabled;
-
-            if (collision.transform.root.CompareTag("Interactable"))
-            {
-                IInteractable interactable = collision.transform.root.GetComponent<IInteractable>();
-
-                //Object is in trigger zone
-                //If diasabling during trigger zone hide hint and remove interactable
-                //if enabling - add interactable and show hint
-                if (AreInteractionsDisabled)
-                    DeleteInteractable(interactable);
-                else
-                    AddNewInteractable(interactable);
+                _objectToInteract = collision.transform.root.GetComponentInChildren<IInteractable>();
+                _objectToInteract.ShowInteractionHint();
             }
         }
 
@@ -75,7 +41,8 @@ namespace GameJam.Player
         {
             if (collision.transform.root.CompareTag("Interactable"))
             {
-                DeleteInteractable(collision.transform.root.GetComponent<IInteractable>());
+                _objectToInteract.HideInteractionHint();
+                _objectToInteract = null;
             }
         }
         #endregion
@@ -83,34 +50,23 @@ namespace GameJam.Player
 
         #region Custom methods
 
-        private void AddNewInteractable(IInteractable interactable)
-        {
-            if (_interactables.Count == 0)
-                interactable?.ShowInteractionHint();
-
-            if (!_interactables.Contains(interactable))
-                _interactables.Enqueue(interactable);
-        }
-        private void DeleteInteractable(IInteractable interactable)
-        {
-            if (_interactables.Contains(interactable))
-                _interactables.Dequeue();
-
-            interactable?.HideInteractionHint();
-
-            _interactables.TryPeek(out IInteractable top);
-            top?.ShowInteractionHint();
-        }
-
         private void HandleInteractions()
         {
-            if (AreInteractionsDisabled) return;
-            if (_interactables.Count == 0) return;
-            if (_playerInput.BasicInteractionInput)
+            if (_objectToInteract != null && _playerInput.BasicInteractionInput)
             {
-                _interactables.TryPeek(out IInteractable top);
-                top?.Interact(gameObject);
+                _objectToInteract.Interact(gameObject);
             }
+        }
+
+        public void DisableInteractions()
+        {
+            GetComponentInChildren<BoxCollider2D>().enabled = false;
+            _areInteractionsDisabled = true;
+        }
+        public void EnableInteractions()
+        {
+            GetComponentInChildren<BoxCollider2D>().enabled = true;
+            _areInteractionsDisabled = false;
         }
         #endregion
     }

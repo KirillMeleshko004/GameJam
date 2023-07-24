@@ -9,8 +9,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5974210618986843342}
-  - component: {fileID: 5974210618986843343}
-  - component: {fileID: 5974210618986843340}
+  - component: {fileID: 1814762564048602801}
+  - component: {fileID: 5247503379643212840}
   m_Layer: 0
   m_Name: TablePrefab
   m_TagString: Interactable
@@ -34,7 +34,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5974210618986843343
+--- !u!114 &1814762564048602801
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -43,35 +43,54 @@ MonoBehaviour:
   m_GameObject: {fileID: 5974210618986843329}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f254a957275a9494a88ba1294727b44c, type: 3}
+  m_Script: {fileID: 11500000, guid: 9d9a927e2c2f370419dcad0a6654eb25, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _dialogueWindowPrefab: {fileID: 6457122014816799102, guid: 7ccf5d666c384f647a87d7598cab81aa, type: 3}
+  _nextCharDelay: 0.01
+  _linesToSuspend:
+  - lineToSuspend:
+      _person: Derek
+      _line: Whatever you say, boss.
+    suspensionTime: 6
+    onDialogueSuspended:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 0}
+          m_TargetAssemblyTypeName: GameJam.Core.SceneControllers.MovementSceneController,
+            Assembly-CSharp
+          m_MethodName: NextAction
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+--- !u!114 &5247503379643212840
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5974210618986843329}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97d99cb5dd7ffa440ac28eebd1b0ebd2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   _hintDisplay: {fileID: 0}
   _player: {fileID: 0}
-  _dialogue: {fileID: 5974210618986843340}
+  _interactionsInfoHelper: []
+  _dialogueScript: {fileID: 0}
   _dialogueText: {fileID: 0}
-  _tableAnim: {fileID: 0}
-  _drinkStartDelay: 2
-  _positionOffset: {x: 0, y: 0, z: 0}
-  _takeCoffeeHint: Press E to take coffee
-  _leaveTableHint: Press E to leave the table
-  _startDialogueHint: Press E to start dialogue
-  _continueDialogueHint: Press E to continue
---- !u!114 &5974210618986843340
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5974210618986843329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85da7c86cc808e544980b43e9fa18fc2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _nextCharDelay: 0.01
-  _dialogueWindowPrefab: {fileID: 6457122014816799102, guid: 7ccf5d666c384f647a87d7598cab81aa, type: 3}
-  _playerInput: {fileID: 0}
+  isDisposable: 0
+  _startDialogueHint: Press E to talk to Derek and Anna
+  _startInteractionHint: Press E to Interact
+  _stopInteractionHint: Press E to leave the table
+  _continueInteractionHint: Press E to continue
 --- !u!1 &5974210619515892578
 GameObject:
   m_ObjectHideFlags: 0

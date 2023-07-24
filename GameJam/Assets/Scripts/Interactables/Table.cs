@@ -1,7 +1,9 @@
+﻿using GameJam.Core.Dialogue;
 using GameJam.Core.Interactions;
 using GameJam.Core.Movement;
 using GameJam.Player;
 using GameJam.ScriptableObjects.Animation;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,300 +11,292 @@ using UnityEngine.Events;
 
 namespace GameJam.Items
 {
-    public class Table : BaseInteractable
+    internal class Table : BaseInteractable, ISerializationCallbackReceiver
     {
         #region Variables
-        [Header("Player gameobject")]
         [SerializeField]
-        protected GameObject _player;
+        private GameObject _player;
 
         [SerializeField]
-        private GameObject _cup;
-        [SerializeField]
-        private GameObject _npcCup;
+        private List<InteractionsInfo> _interactionsInfoHelper = new();
+
+        private readonly Dictionary<GameObject, InteractionsInfo> _interactionsInfo = new();
 
         [SerializeField]
-        private bool _autoDrinkEnabled = true;
+        private DialogueScript _dialogueScript;
+        [SerializeField]
+        private TextAsset _dialogueText;
+
+        [Header("If disposable - can handle only one interaction cycle")]
+        [SerializeField]
+        private bool isDisposable = false;
 
 
+        [Header("Hint messages")]
         [SerializeField]
-        private DialogueScript _dialogue;
+        private string _startDialogueHint = "Press E to talk to Derek and Anna";
         [SerializeField]
-        private TextAsset _dialogueText = null;
-
+        private string _startInteractionHint = "Press E to Interact";
         [SerializeField]
-        private float _drinkDelay = 2f;
-
-        [Header("Postition offset relative to table to position objects. Can be change by changing property value")]
+        private string _stopInteractionHint = "Press E to leave the table";
         [SerializeField]
-        private Vector3 _positionOffset = Vector3.zero;
-        [SerializeField]
-        private Vector3 _npcPositionOffset = Vector3.zero;
-
-        [Header("Messages, that show up as a hint")]
-        [SerializeField]
-        private string _takeCoffeeHint = "Press E to take coffee";
-        [SerializeField]
-        private string _leaveTableHint = "Press E to leave the table";
-        [SerializeField]
-        private string _startDialogueHint = "Press E to start dialogue";
-        [SerializeField]
-        private string _continueDialogueHint = "Press E to continue dialogue";
-
-        [SerializeField]
-        private UnityEvent OnTableExit = null;
+        private string _continueInteractionHint = "Press E to continue";
         #endregion
 
-        #region Properties
-        public Vector3 PositionOffset { get { return _positionOffset; } set { _positionOffset = value; } }
-        public TextAsset DialogueText { get { return _dialogueText; } set { _dialogueText = value; } }
-        #endregion
 
-        #region Interactions info
-        private readonly Dictionary<GameObject, InteractionObjectInfo> _objectsToInteract = new();
-        private sealed class InteractionObjectInfo
+        #region Helper classes
+        [Serializable]
+        private sealed class InteractionsInfo
         {
-            public PersonObject objectInfo;
+            [Header("Interacting object info")]
+            public GameObject target = null;
+            public PersonObject personObject = null;
 
-            public GameObject gameObject;
+            [Header("Offset from table center")]
+            public Vector3 targetOffset;
 
-            public bool isInteracting = false;
-            public bool isDrinking = false;
-            public bool isLeaving = false;
-            public bool canLeave = false;
+            [Header("Defines object rotation")]
+            public bool isFaceRight;
 
-            public InteractionObjectInfo(PersonObject objectInfo, bool canLeave)
-            {
-                this.objectInfo = objectInfo;
-                this.gameObject = objectInfo.gameObject;
-                this.canLeave = canLeave;
-            }
+            [Header("If null interaction would be performed without cup")]
+            public GameObject cup = null;
+
+            [Header("Start state of object")]
+            public bool isInteracting;
+
+            public bool canStopInteraction = false;
+
+            [NonSerialized]
+            public bool isDrinkingNow = false;
+
+            [Header("Fires while interaction starts")]
+            public UnityEvent onInteractionStarts;
+            [Header("Fires while interaction ends")]
+            public UnityEvent onInteractionEnds;
+
         }
         #endregion
 
-        #region Built-in methods
+        #region Built in methods
         private void Start()
         {
-            if(_dialogue != null)
-                _dialogue.OnSuspensionChange += OnDialogueSuspensionChanged;
+            _dialogueScript.OnDialogueSuspensionChanged += DialogueSuspensionStateChanged;
         }
         #endregion
 
         #region Custom methods
-        private void OnDialogueSuspensionChanged(bool isSuspended)
+
+        private void DialogueSuspensionStateChanged(bool state)
         {
-            if (isSuspended) _player.GetComponent<PersonObject>().DisableInteractions();
-            else _player.GetComponent<PersonObject>().EnableInteractions();
+            if(state)
+            {
+                foreach (var kvp in _interactionsInfo)
+                    kvp.Value.personObject.DisableInteractions();
+            }
+            else
+            {
+                foreach (var kvp in _interactionsInfo)
+                {
+                    if(_dialogueScript.IsDialogueComleted) kvp.Value.canStopInteraction = true;
+                    kvp.Value.personObject.EnableInteractions();
+                }
+            }
         }
 
-        private void ResetTableFor(InteractionObjectInfo interactionObject)
+        private IEnumerator StartInteraction(InteractionsInfo interaction)
         {
-            if (_objectsToInteract.ContainsValue(interactionObject))
-                _objectsToInteract.Remove(interactionObject.gameObject);
-        }
+            interaction.personObject.DisableInteractions();
+            SetInteraction(interaction, true);
 
-        private IEnumerator TakeCup(InteractionObjectInfo interactionObject)
-        {
-            interactionObject.objectInfo.DisableInteractions();
-            interactionObject.objectInfo.DisableMovements();
-
-
-            Mover.AddMovement(interactionObject.gameObject, new Vector3(transform.position.x,
-                interactionObject.gameObject.transform.position.y,
-                interactionObject.gameObject.transform.position.z) + 
-                (interactionObject.gameObject == _player ? _positionOffset : _npcPositionOffset));
-
-            while (!Mover.IsAtTarget(interactionObject.gameObject))
+            MoveToCorrectPosition(interaction.target, interaction.targetOffset);
+            while (!Mover.IsAtTarget(interaction.target))
                 yield return new WaitForFixedUpdate();
 
-            
-            if(interactionObject.gameObject == _player && interactionObject.gameObject.transform.localScale.x < 0f ||
-                interactionObject.gameObject != _player && interactionObject.gameObject.transform.localScale.x > 0f)
-                interactionObject.gameObject.transform.localScale = new Vector3(
-                    -interactionObject.gameObject.transform.localScale.x,
-                    interactionObject.gameObject.transform.localScale.y,
-                    interactionObject.gameObject.transform.localScale.z
-                    );
+            SetCorrectRotation(interaction.target, interaction.isFaceRight, interaction.cup != null);
 
-            AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.TakeCoffee);
+            if(interaction.cup != null) StartCoroutine(TakeCup(interaction));
+            else interaction.personObject.EnableInteractions();
+        }
+        private IEnumerator StopInteraction(InteractionsInfo interaction)
+        {
+            interaction.personObject.DisableInteractions();
 
-            interactionObject.objectInfo.SetAnimTrigger(animInfo);
-            if (interactionObject.gameObject == _player)
-                _cup.SetActive(false);
+            if (isDisposable) DisableTable();
+
+            if (interaction.cup != null)
+            {
+                while (interaction.isDrinkingNow)
+                    yield return new WaitForFixedUpdate();
+                StartCoroutine(PutCupBack(interaction));
+            }
             else
-                _npcCup.SetActive(false);
-            yield return new WaitForSeconds(animInfo.AnimationLength);
+            {
+                SetInteraction(interaction, false);
+                interaction.personObject.EnableInteractions();
+            }
+        }
+        private void ContinueInteraction(InteractionsInfo interaction)
+        {
+            if (_dialogueScript.IsDialogueComleted)
+            {
+                StartCoroutine(StopInteraction(interaction));
+                _dialogueScript.FinishDialogue();
+            }
 
-            interactionObject.isInteracting = true;
+            else if (!_dialogueScript.IsStarted)
+            {
+                _dialogueScript.StartDialogue(_dialogueText);
+                UpdateInteractionHint();
+            }
 
-            interactionObject.objectInfo.EnableInteractions();
-
-            if(_autoDrinkEnabled)
-                StartCoroutine(StartDrinkAnimation(interactionObject));
+            else _dialogueScript.ShowNextSentence();
         }
 
+
+        private void SetInteraction(InteractionsInfo interaction, bool isInteracting)
+        {
+            interaction.isInteracting = isInteracting;
+            if (isInteracting)
+            {
+                interaction.onInteractionStarts?.Invoke();
+                interaction.personObject.DisableMovements();
+            }
+            else
+            {
+                interaction.personObject.EnableMovements();
+                interaction.onInteractionEnds?.Invoke();
+            }
+        }
+        private IEnumerator TakeCup(InteractionsInfo interaction)
+        {
+            PersonObject personObject = interaction.personObject;
+            
+            AnimInfo animInfo = personObject.AnimInfo.GetAnimationInfo(AnimationTypes.TakeCoffee);
+
+            interaction.cup.SetActive(false);
+
+            personObject.SetAnimTrigger(animInfo);
+
+            yield return new WaitForSeconds(animInfo.AnimationLength);
+
+            interaction.personObject.EnableInteractions();
+        }
+        private IEnumerator PutCupBack(InteractionsInfo interaction)
+        {
+            PersonObject personObject = interaction.personObject;
+
+            AnimInfo animInfo = personObject.AnimInfo.GetAnimationInfo(AnimationTypes.LeaveTable);
+
+            personObject.SetAnimTrigger(animInfo);
+
+            yield return new WaitForSeconds(animInfo.AnimationLength);
+
+            interaction.cup.SetActive(true);
+            
+            SetInteraction(interaction, false);
+            interaction.personObject.EnableInteractions();
+        }
+        private IEnumerator Drink(InteractionsInfo interaction)
+        {
+            interaction.isDrinkingNow = true;
+
+            AnimInfo animInfo = interaction.personObject.AnimInfo.GetAnimationInfo(AnimationTypes.DrinkCoffee);
+
+            interaction.personObject.SetAnimTrigger(animInfo);
+            yield return new WaitForSeconds(animInfo.AnimationLength);
+
+            interaction.isDrinkingNow = false;
+        }
+        private void MoveToCorrectPosition(GameObject gameObject, Vector3 offset)
+        {
+            Vector3 targerPos = transform.position + offset;
+            Mover.AddMovement(gameObject, targerPos);
+        }
+        private void SetCorrectRotation(GameObject gameObject, bool isFaceRight, bool isWithCup)
+        {
+            Vector2 scale = gameObject.transform.localScale;
+            float newXScale = isFaceRight && isWithCup || !isFaceRight && !isWithCup ? 
+                Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
+
+            Vector2 newScale = new Vector2(newXScale, scale.y);
+
+            gameObject.transform.localScale = newScale;
+
+            //positive without cup - left
+            //positive with cup  - right
+        }
+        private void UpdateInteractionHint()
+        {
+            base._hintDisplay.SetActive(true);
+            HintDisplay display = _hintDisplay.GetComponent<HintDisplay>();
+
+            if (_dialogueText != null && !_dialogueScript.IsStarted) display.DisplayHint(_startDialogueHint);
+            else display.DisplayHint(_continueInteractionHint);
+        }
+        private void DisableTable()
+        {
+            GetComponentInChildren<BoxCollider2D>().enabled = false;
+        }
+
+        #region Public methods
         public void Drink(GameObject drinker)
         {
-            if (!_objectsToInteract.ContainsKey(drinker))
-            {
-                _objectsToInteract.Add(drinker, new InteractionObjectInfo(
-                            drinker.GetComponent<PersonObject>(),
-                            drinker != _player || _dialogueText == null));
-            }
-            StartCoroutine(Drink(_objectsToInteract[drinker]));
-        }
-
-        private IEnumerator StartDrinkAnimation(InteractionObjectInfo interactionObject)
-        {
-            yield return new WaitForSeconds(_drinkDelay);
-
-            if (!interactionObject.isLeaving)
-                StartCoroutine(Drink(interactionObject));
-        }
-
-        private IEnumerator Drink(InteractionObjectInfo interactionObject)
-        {
-            interactionObject.isDrinking = true;
-
-            AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.DrinkCoffee);
-            interactionObject.objectInfo.SetAnimTrigger(animInfo);
-
-            yield return new WaitForSeconds(animInfo.AnimationLength);
-            interactionObject.isDrinking = false;
-        }
-
-        private IEnumerator LeaveTheTable(InteractionObjectInfo interactionObject)
-        {
-            OnTableExit?.Invoke();
-            if (interactionObject.gameObject == _player && _cup == null ||
-                interactionObject.gameObject != _player && _npcCup == null)
-            {
-                interactionObject.objectInfo.EnableMovements();
-                yield break;
-            }
-
-            interactionObject.isLeaving = true;
-            interactionObject.objectInfo.DisableInteractions();
-
-            while (interactionObject.isDrinking) yield return new WaitForFixedUpdate();
-
-            AnimInfo animInfo = interactionObject.objectInfo.AnimInfo.GetAnimationInfo(AnimationTypes.LeaveTable);
-            interactionObject.objectInfo.SetAnimTrigger(animInfo);
-
-            yield return new WaitForSeconds(animInfo.AnimationLength);
-
-
-            if (interactionObject.gameObject == _player)
-                _cup.SetActive(true);
-            else
-                _npcCup.SetActive(true);
-
-            ResetTableFor(interactionObject);
-
-            interactionObject.objectInfo.EnableMovements();
-            interactionObject.objectInfo.EnableInteractions();
-        }
-
-        private void HandleDialogue()
-        {
-            if(_dialogue.IsCompleted)
-            {
-                _dialogue.FinishDialogue();
-                _objectsToInteract[_player].canLeave = true;
-            }
-            else if (!_dialogue.IsDisplaying)
-            {
-                StartCoroutine(StartDialogue(_objectsToInteract[_player]));
-            }
-            else
-            {
-                _dialogue.ShowNextSentence();   
-            }
-        }
-
-        private IEnumerator StartDialogue(InteractionObjectInfo interactionObject)
-        {
-            if(_cup == null)
-            {
-                interactionObject.objectInfo.DisableInteractions();
-                interactionObject.objectInfo.DisableMovements();
-
-                Mover.AddMovement(interactionObject.gameObject, new Vector3(transform.position.x,
-                    interactionObject.gameObject.transform.position.y,
-                    interactionObject.gameObject.transform.position.z) + _positionOffset);
-
-                while (!Mover.IsAtTarget(interactionObject.gameObject))
-                    yield return new WaitForFixedUpdate();
-
-                if (interactionObject.gameObject.transform.localScale.x < 0f)
-                    interactionObject.gameObject.transform.localScale = new Vector3(
-                        -interactionObject.gameObject.transform.localScale.x,
-                        interactionObject.gameObject.transform.localScale.y,
-                        interactionObject.gameObject.transform.localScale.z
-                        );
-
-                interactionObject.isInteracting = true;
-
-                interactionObject.objectInfo.EnableInteractions();
-            }
-
-            _dialogue.StartDialogue(_dialogueText);
+            StartCoroutine(Drink(_interactionsInfo[drinker]));
         }
         #endregion
 
-        #region IInteractable realisation
-        public override GameObject InteractableObject { get { return this.gameObject; } }
+        #endregion
+
+
+        #region BaseInteractable implementation
+        public override GameObject InteractableObject { get { return gameObject; } }
+
         public override void Interact(GameObject sender)
         {
-            if (!_objectsToInteract.ContainsKey(sender))
-            {
-                _objectsToInteract.Add(sender, new InteractionObjectInfo(
-                            sender.GetComponent<PersonObject>(),
-                            sender != _player || _dialogueText == null || _dialogue.IsCompleted));
-            }
+            if (!_interactionsInfo.ContainsKey(sender)) return;
 
-            bool hasCup = sender == _player && _cup != null || sender != _player && _npcCup != null;
+            InteractionsInfo interaction = _interactionsInfo[sender];
 
-            if (!_objectsToInteract[sender].isInteracting && hasCup)
-                StartCoroutine(TakeCup(_objectsToInteract[sender]));
-            else if (_objectsToInteract[sender].canLeave)
-                StartCoroutine(LeaveTheTable(_objectsToInteract[sender]));
-            else
-                HandleDialogue();
+            if (!interaction.isInteracting) StartCoroutine(StartInteraction(interaction));
 
-            ShowInteractionHint();
+            else if (interaction.canStopInteraction) StartCoroutine(StopInteraction(interaction));
+
+            else ContinueInteraction(interaction);
         }
 
         public override void ShowInteractionHint()
         {
             if (_player == null) return;
-
-            if (!_objectsToInteract.ContainsKey(_player))
-                _objectsToInteract.Add(_player, new InteractionObjectInfo(_player.GetComponent<PersonObject>(),
-                     _dialogueText == null || _dialogue.IsCompleted));
+            InteractionsInfo interaction = _interactionsInfo[_player];
 
             base._hintDisplay.SetActive(true);
-            if (!_objectsToInteract[_player].isInteracting)
-            {
-                _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_takeCoffeeHint);
-            }
-            else if(_objectsToInteract[_player].canLeave)
-            {
-                _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_leaveTableHint);
-            }
-            else if (!_dialogue.IsDisplaying)
-            {
-                _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_startDialogueHint);
-            }
-            else
-                _hintDisplay.GetComponent<HintDisplay>().DisplayHint(_continueDialogueHint);
+            HintDisplay display = _hintDisplay.GetComponent<HintDisplay>();
+
+            if (!interaction.isInteracting) display.DisplayHint(_startInteractionHint);
+            else if (interaction.canStopInteraction) 
+                display.DisplayHint(_stopInteractionHint);
+            else if(_dialogueText != null && !_dialogueScript.IsStarted) display.DisplayHint(_startDialogueHint);
+            else display.DisplayHint(_continueInteractionHint);
         }
         public override void HideInteractionHint()
         {
             base._hintDisplay.GetComponent<HintDisplay>().HideHint();
             base._hintDisplay.SetActive(false);
         }
+        #endregion
 
+        #region ISerializationCallbackReceiver
+        public void OnBeforeSerialize()
+        {
+            //No need
+        }
+
+        public void OnAfterDeserialize()
+        {
+            _interactionsInfo.Clear();
+            foreach(InteractionsInfo info in _interactionsInfoHelper)
+                _interactionsInfo.TryAdd(info.target, info);
+        }
         #endregion
     }
 }
